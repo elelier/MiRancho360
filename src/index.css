@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'PT Sans', 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply bg-background text-primary-900;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  /* Estilos para mejorar accesibilidad en dispositivos móviles */
+  button, input, select, textarea {
+    @apply text-base; /* Evita zoom en iOS */
+  }
+}
+
+@layer components {
+  /* Botones grandes para adultos mayores */
+  .btn-primary {
+    @apply bg-primary-400 hover:bg-primary-500 text-white font-bold py-4 px-6 rounded-xl text-lg min-h-[60px] shadow-lg transition-all duration-200 active:scale-95;
+  }
+  
+  .btn-secondary {
+    @apply bg-accent-400 hover:bg-accent-500 text-white font-bold py-4 px-6 rounded-xl text-lg min-h-[60px] shadow-lg transition-all duration-200 active:scale-95;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary-400 text-primary-600 hover:bg-primary-400 hover:text-white font-bold py-4 px-6 rounded-xl text-lg min-h-[60px] transition-all duration-200 active:scale-95;
+  }
+
+  /* Inputs grandes y legibles */
+  .input-primary {
+    @apply block w-full px-4 py-4 text-lg border border-primary-300 rounded-xl focus:ring-2 focus:ring-primary-400 focus:border-primary-400 min-h-[60px] bg-white;
+  }
+
+  /* Cards para animales y sitios */
+  .card {
+    @apply bg-white rounded-2xl shadow-md p-6 border border-primary-100;
+  }
+
+  .card-title {
+    @apply text-xl font-bold text-primary-800 mb-2;
+  }
+
+  .card-subtitle {
+    @apply text-lg text-primary-600 mb-4;
+  }
+
+  /* Layout principal */
+  .container-mobile {
+    @apply max-w-md mx-auto px-6 py-6;
+  }
+  
+  .page-header {
+    @apply text-3xl font-bold text-primary-800 mb-6 text-center;
+  }
+}
+
+@layer utilities {
+  .tap-highlight-none {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
