@@ -6,6 +6,31 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- =================================
+-- CONFIGURACIÓN DEL RANCHO
+-- =================================
+
+-- Tabla de configuración general del rancho
+CREATE TABLE configuracion_rancho (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    nombre_rancho VARCHAR(200) NOT NULL DEFAULT 'Mi Rancho',
+    propietario VARCHAR(200),
+    ubicacion TEXT,
+    telefono VARCHAR(20),
+    email VARCHAR(255),
+    descripcion TEXT,
+    logo_url TEXT,
+    zona_horaria VARCHAR(50) DEFAULT 'America/Mexico_City',
+    moneda VARCHAR(10) DEFAULT 'MXN',
+    configuracion_clima JSONB DEFAULT '{"habilitado": true, "ubicacion": "", "api_key": ""}',
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    fecha_actualizacion TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Insertar configuración por defecto
+INSERT INTO configuracion_rancho (nombre_rancho, propietario, descripcion) 
+VALUES ('Mi Rancho Familiar', 'Usuario Administrador', 'Rancho familiar dedicado a la ganadería');
+
+-- =================================
 -- TABLAS PRINCIPALES
 -- =================================
 
@@ -89,6 +114,52 @@ CREATE TABLE movimientos_animales (
 );
 
 -- =================================
+-- ALERTAS Y NOTIFICACIONES
+-- =================================
+
+-- Tabla de alertas del sistema
+CREATE TABLE alertas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('vacunacion_pendiente', 'revision_veterinaria', 'sobrepoblacion', 'parto_proximo', 'tratamiento_pendiente', 'mantenimiento_sitio', 'inventario_bajo')),
+    prioridad VARCHAR(20) NOT NULL CHECK (prioridad IN ('baja', 'media', 'alta', 'critica')) DEFAULT 'media',
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT NOT NULL,
+    animal_id UUID REFERENCES animales(id),
+    sitio_id UUID REFERENCES sitios(id),
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    fecha_vencimiento TIMESTAMP WITH TIME ZONE,
+    activa BOOLEAN DEFAULT true,
+    fecha_resolucion TIMESTAMP WITH TIME ZONE,
+    usuario_resolucion UUID REFERENCES usuarios(id),
+    observaciones_resolucion TEXT
+);
+
+-- =================================
+-- TAREAS Y PROGRAMACIÓN
+-- =================================
+
+-- Tabla de tareas programadas
+CREATE TABLE tareas (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tipo VARCHAR(50) NOT NULL CHECK (tipo IN ('vacunacion', 'revision_veterinaria', 'traslado', 'tratamiento', 'apareamiento', 'mantenimiento', 'limpieza')),
+    titulo VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    animal_id UUID REFERENCES animales(id),
+    sitio_id UUID REFERENCES sitios(id),
+    fecha_programada TIMESTAMP WITH TIME ZONE NOT NULL,
+    fecha_vencimiento TIMESTAMP WITH TIME ZONE,
+    prioridad VARCHAR(20) NOT NULL CHECK (prioridad IN ('baja', 'media', 'alta')) DEFAULT 'media',
+    estado VARCHAR(20) NOT NULL CHECK (estado IN ('pendiente', 'en_progreso', 'completada', 'cancelada')) DEFAULT 'pendiente',
+    notas TEXT,
+    usuario_asignado UUID REFERENCES usuarios(id),
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    usuario_creacion UUID NOT NULL REFERENCES usuarios(id),
+    fecha_completada TIMESTAMP WITH TIME ZONE,
+    usuario_completada UUID REFERENCES usuarios(id),
+    movimiento_generado_id UUID REFERENCES movimientos_animales(id) -- Link al movimiento que se genera al completar la tarea
+);
+
+-- =================================
 -- ÍNDICES
 -- =================================
 
@@ -101,6 +172,16 @@ CREATE INDEX idx_sitios_tipo ON sitios(tipo_id);
 CREATE INDEX idx_sitios_activo ON sitios(activo);
 CREATE INDEX idx_movimientos_animal ON movimientos_animales(animal_id);
 CREATE INDEX idx_movimientos_fecha ON movimientos_animales(fecha_movimiento);
+
+-- Índices para alertas y tareas
+CREATE INDEX idx_alertas_tipo ON alertas(tipo);
+CREATE INDEX idx_alertas_prioridad ON alertas(prioridad);
+CREATE INDEX idx_alertas_activa ON alertas(activa);
+CREATE INDEX idx_alertas_fecha_vencimiento ON alertas(fecha_vencimiento);
+CREATE INDEX idx_tareas_estado ON tareas(estado);
+CREATE INDEX idx_tareas_fecha_programada ON tareas(fecha_programada);
+CREATE INDEX idx_tareas_prioridad ON tareas(prioridad);
+CREATE INDEX idx_tareas_usuario_asignado ON tareas(usuario_asignado);
 
 -- =================================
 -- VIEWS

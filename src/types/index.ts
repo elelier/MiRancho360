@@ -2,6 +2,8 @@
 export * from './animals';
 export * from './sites';
 export * from './auth';
+export * from './movements';
+export * from './alerts';
 
 // Tipos comunes de la aplicación
 export interface ApiResponse<T> {
