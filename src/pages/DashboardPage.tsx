@@ -292,16 +292,8 @@ export function DashboardPage() {
           </div>
           
           <div className="relative p-8 border-b border-white/20">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-center">
               <h3 className="text-2xl font-bold text-white drop-shadow-sm">Últimos Movimientos</h3>
-              <Button
-                onClick={() => navigate('/movimientos')}
-                variant="outline"
-                size="large"
-                className="!text-white !border-white/70 hover:!bg-white/25 !text-lg !px-6 !py-3 !font-semibold !min-h-[48px] backdrop-blur-sm"
-              >
-                Ver Todos →
-              </Button>
             </div>
           </div>
           
@@ -358,6 +350,19 @@ export function DashboardPage() {
                 </div>
               );
             })}
+          </div>
+          
+          {/* Botón Ver Todos en la parte inferior */}
+          <div className="relative p-6 pt-0">
+            <Button
+              onClick={() => navigate('/movimientos')}
+              variant="outline"
+              size="large"
+              className="!text-white !border-white/70 hover:!bg-white/25 !text-lg !px-6 !py-3 !font-semibold !min-h-[48px] backdrop-blur-sm"
+              fullWidth
+            >
+              Ver Todos los Movimientos →
+            </Button>
           </div>
         </div>
       </div>

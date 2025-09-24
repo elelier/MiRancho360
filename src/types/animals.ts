@@ -1,14 +1,20 @@
+import type { Sitio } from './sites';
+
 export interface Animal {
   id: string;
   arete: string; // Número de arete único
   nombre?: string; // Nombre opcional del animal
   raza: Raza;
+  raza_id?: string; // ID de la raza
   sexo: 'Macho' | 'Hembra';
   fecha_nacimiento: string; // ISO date string
   peso_kg?: number;
   sitio_actual_id: string;
+  sitio_actual?: Sitio; // Información completa del sitio cuando se incluye en queries
   padre_id?: string;
   madre_id?: string;
+  padre?: { arete: string; nombre?: string }; // Información del padre cuando se incluye
+  madre?: { arete: string; nombre?: string }; // Información de la madre cuando se incluye
   observaciones?: string;
   activo: boolean;
   fecha_registro: string;

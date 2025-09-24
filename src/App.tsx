@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
+import { AnimalsPage } from './pages/AnimalsPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -76,17 +77,12 @@ function App() {
               } 
             />
             
-            {/* Rutas de animales (por implementar) */}
+            {/* Rutas de animales */}
             <Route 
               path="/animales" 
               element={
                 <ProtectedRoute>
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                      <h1 className="text-2xl font-bold mb-4">🐄 Módulo de Animales</h1>
-                      <p className="text-gray-600">Próximamente disponible</p>
-                    </div>
-                  </div>
+                  <AnimalsPage />
                 </ProtectedRoute>
               } 
             />

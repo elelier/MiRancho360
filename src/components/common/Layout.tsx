@@ -12,7 +12,7 @@ export function Layout({ children, title, showBackButton = false, onBack }: Layo
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-primary-200">
-        <div className="container-mobile">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             {showBackButton && onBack && (
               <button
@@ -42,7 +42,7 @@ export function Layout({ children, title, showBackButton = false, onBack }: Layo
       </header>
 
       {/* Main Content */}
-      <main className="container-mobile py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {children}
       </main>
     </div>
