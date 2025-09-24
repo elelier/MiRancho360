@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
-import { Layout } from '../components/common/Layout';
+import { SideMenu } from '../components/common/SideMenu';
 import { useAnimals, useRazas } from '../hooks/useAnimals';
 import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
 import type { AnimalFilters } from '../types';
@@ -11,12 +11,13 @@ import type { AnimalFilters } from '../types';
 export function AnimalsPage() {
   const navigate = useNavigate();
   
-  // Estados para filtros
+  // Estados para filtros y UI
   const [filters, setFilters] = useState<AnimalFilters>({
     activo: true
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Hooks para datos
   const { animals, isLoading, error, reload } = useAnimals(filters);
@@ -63,7 +64,7 @@ export function AnimalsPage() {
 
   if (error) {
     return (
-      <Layout>
+      <div className="min-h-screen bg-background">
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <div className="text-6xl mb-4">❌</div>
@@ -72,48 +73,60 @@ export function AnimalsPage() {
             <Button onClick={reload}>Intentar de nuevo</Button>
           </div>
         </div>
-      </Layout>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="min-h-screen bg-background">
-        {/* Header */}
-        <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="p-4 lg:p-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="p-3 rounded-xl hover:bg-gray-100 transition-colors"
-                  aria-label="Volver al dashboard"
-                >
-                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center space-x-2 sm:space-x-3">
-                    <Icon name="cow-large" className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
-                    <span>Gestión de Animales</span>
-                  </h1>
-                  <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-1">
-                    {isLoading ? 'Cargando...' : `${filteredAnimals.length} animales encontrados`}
-                  </p>
-                </div>
-              </div>
-              <Button
-                onClick={() => navigate('/animales/nuevo')}
-                className="w-full lg:w-auto bg-primary-600 hover:bg-primary-700 text-base lg:text-lg py-3 px-6"
-              >
-                <Icon name="plus" className="w-5 h-5 mr-2" />
-                <span>Nuevo Animal</span>
-              </Button>
-            </div>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="flex items-center justify-between p-6">
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-4 rounded-xl hover:bg-primary-50 transition-colors min-w-[60px] min-h-[60px] flex items-center justify-center"
+            aria-label="Abrir menú principal"
+          >
+            <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-primary-800">Animales</h1>
+          <div className="w-16"></div> {/* Spacer */}
+        </div>
+      </header>
 
-            {/* Barra de búsqueda y filtros */}
-            <div className="flex flex-col space-y-4 mt-6">
+      {/* Menu lateral */}
+      <SideMenu 
+        isOpen={showMenu} 
+        onClose={() => setShowMenu(false)}
+        currentPage="animals"
+      />
+
+      <div className="p-6 space-y-6">
+        {/* Header de contenido con acciones */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 flex items-center space-x-2 sm:space-x-3">
+                <Icon name="cow-large" className="w-6 h-6 sm:w-8 sm:h-8 text-primary-600" />
+                <span>Gestión de Animales</span>
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base lg:text-lg mt-1">
+                {isLoading ? 'Cargando...' : `${filteredAnimals.length} animales encontrados`}
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/animales/nuevo')}
+              className="w-full lg:w-auto bg-primary-600 hover:bg-primary-700 text-base lg:text-lg py-3 px-6"
+            >
+              <Icon name="plus-circle-simple" className="w-5 h-5 mr-2" />
+              <span>Nuevo Animal</span>
+            </Button>
+          </div>
+
+          {/* Barra de búsqueda y filtros */}
+          <div className="flex flex-col space-y-4 mt-6">
               <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
                   <Input
@@ -203,7 +216,6 @@ export function AnimalsPage() {
               )}
             </div>
           </div>
-        </div>
 
         {/* Lista de animales */}
         <div className="p-4 lg:p-6">
@@ -322,6 +334,6 @@ export function AnimalsPage() {
           )}
         </div>
       </div>
-    </Layout>
+    </div>
   );
 }
