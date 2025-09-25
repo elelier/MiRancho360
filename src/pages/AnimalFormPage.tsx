@@ -1,0 +1,488 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Button } from '../components/common/Button';
+import { Input } from '../components/common/Input';
+import Icon from '../components/common/Icon';
+import { SideMenu } from '../components/common/SideMenu';
+import { useAnimals, useRazas, useAnimal } from '../hooks/useAnimals';
+import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
+import { useAuth } from '../hooks/useAuth';
+import type { AnimalFormData } from '../types';
+
+interface FormErrors {
+  [key: string]: string;
+}
+
+export function AnimalFormPage() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditing = Boolean(id);
+  
+  // Estados principales
+  const [showMenu, setShowMenu] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  // Hooks
+  const { usuario } = useAuth();
+  const { createAnimal, updateAnimal } = useAnimals();
+  const { animal, isLoading: loadingAnimal } = useAnimal(id || null);
+  const { razas, isLoading: loadingRazas } = useRazas();
+  const { sitios, loading: loadingSitios } = useSitiosConAnimales();
+
+  // Estado del formulario
+  const [formData, setFormData] = useState<AnimalFormData>({
+    arete: '',
+    nombre: '',
+    raza_id: '',
+    sexo: 'Hembra',
+    fecha_nacimiento: '',
+    peso_kg: undefined,
+    sitio_inicial_id: '',
+    padre_id: '',
+    madre_id: '',
+    observaciones: ''
+  });
+
+  // Cargar datos del animal si estamos editando
+  useEffect(() => {
+    if (isEditing && animal) {
+      setFormData({
+        arete: animal.arete,
+        nombre: animal.nombre || '',
+        raza_id: animal.raza_id || animal.raza?.id || '',
+        sexo: animal.sexo,
+        fecha_nacimiento: animal.fecha_nacimiento.split('T')[0], // Solo la fecha
+        peso_kg: animal.peso_kg,
+        sitio_inicial_id: animal.sitio_actual_id,
+        padre_id: animal.padre_id || '',
+        madre_id: animal.madre_id || '',
+        observaciones: animal.observaciones || ''
+      });
+    }
+  }, [isEditing, animal]);
+
+  const handleInputChange = (field: keyof AnimalFormData) => (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const value = e.target.value;
+    setFormData(prev => ({
+      ...prev,
+      [field]: field === 'peso_kg' ? (value ? parseFloat(value) : undefined) : value
+    }));
+    
+    // Limpiar error del campo cuando el usuario empiece a escribir
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: '' }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    // Validaciones requeridas
+    if (!formData.arete.trim()) {
+      newErrors.arete = 'El arete es obligatorio';
+    } else if (formData.arete.length < 1 || formData.arete.length > 20) {
+      newErrors.arete = 'El arete debe tener entre 1 y 20 caracteres';
+    }
+
+    if (!formData.raza_id) {
+      newErrors.raza_id = 'La raza es obligatoria';
+    }
+
+    if (!formData.fecha_nacimiento) {
+      newErrors.fecha_nacimiento = 'La fecha de nacimiento es obligatoria';
+    } else {
+      const birthDate = new Date(formData.fecha_nacimiento);
+      const today = new Date();
+      if (birthDate > today) {
+        newErrors.fecha_nacimiento = 'La fecha de nacimiento no puede ser futura';
+      }
+    }
+
+    if (!formData.sitio_inicial_id) {
+      newErrors.sitio_inicial_id = 'El sitio inicial es obligatorio';
+    }
+
+    if (formData.peso_kg && (formData.peso_kg < 1 || formData.peso_kg > 2000)) {
+      newErrors.peso_kg = 'El peso debe estar entre 1 y 2000 kg';
+    }
+
+    if (formData.nombre && formData.nombre.length > 100) {
+      newErrors.nombre = 'El nombre no puede exceder 100 caracteres';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm() || !usuario) return;
+
+    setIsSubmitting(true);
+    try {
+      if (isEditing && id) {
+        await updateAnimal(id, formData, usuario.id);
+        navigate(`/animales/${id}`, { 
+          state: { message: 'Animal actualizado exitosamente' }
+        });
+      } else {
+        const newAnimal = await createAnimal(formData, usuario.id);
+        navigate(`/animales/${newAnimal.id}`, { 
+          state: { message: 'Animal registrado exitosamente' }
+        });
+      }
+    } catch (error) {
+      console.error('Error al guardar animal:', error);
+      setErrors({ 
+        submit: error instanceof Error ? error.message : 'Error al guardar el animal'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Obtener animales para selección de padres (por ahora vacío, se puede implementar después)
+  const animalesPadres: Array<{id: string, arete: string, nombre?: string}> = [];
+  const animalesMadres: Array<{id: string, arete: string, nombre?: string}> = [];
+
+  if (loadingAnimal || loadingRazas || loadingSitios) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="bg-white shadow-sm border-b border-gray-200">
+          <div className="flex items-center justify-between p-6">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => navigate('/animales')}
+                className="p-4 rounded-xl hover:bg-primary-50 transition-colors min-w-[60px] min-h-[60px] flex items-center justify-center"
+                aria-label="Volver a animales"
+              >
+                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            </div>
+            <h1 className="text-2xl font-bold text-primary-800">Cargando...</h1>
+            <div className="w-16"></div>
+          </div>
+        </header>
+        
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600"></div>
+          <span className="ml-4 text-2xl text-gray-600">Cargando formulario...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="flex items-center justify-between p-6">
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-4 rounded-xl hover:bg-primary-50 transition-colors min-w-[60px] min-h-[60px] flex items-center justify-center"
+            aria-label="Abrir menú principal"
+          >
+            <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <h1 className="text-2xl font-bold text-primary-800">
+            {isEditing ? 'Editar Animal' : 'Nuevo Animal'}
+          </h1>
+          <div className="w-16"></div>
+        </div>
+      </header>
+
+      {/* Menu lateral */}
+      <SideMenu 
+        isOpen={showMenu} 
+        onClose={() => setShowMenu(false)}
+        currentPage="animals"
+      />
+
+      <div className="p-6">
+        {/* Botón volver */}
+        <div className="mb-6">
+          <Button
+            variant="outline"
+            onClick={() => navigate('/animales')}
+            className="flex items-center space-x-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            <span>Volver a Animales</span>
+          </Button>
+        </div>
+
+        {/* Formulario */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
+            {/* Header del formulario */}
+            <div className="flex items-center space-x-4 mb-8">
+              <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center">
+                <Icon name="cow-large" className="w-10 h-10 text-primary-600" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900">
+                  {isEditing ? 'Editar Animal' : 'Registrar Nuevo Animal'}
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  {isEditing ? 'Modifica la información del animal' : 'Completa la información del animal'}
+                </p>
+              </div>
+            </div>
+
+            {/* Mensaje de error general */}
+            {errors.submit && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <div className="text-red-500">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <p className="text-red-700 font-medium">{errors.submit}</p>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-8">
+              {/* Información Básica */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <span className="text-2xl">📋</span>
+                  <span>Información Básica</span>
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Input
+                      label="Arete *"
+                      value={formData.arete}
+                      onChange={handleInputChange('arete')}
+                      placeholder="Ej: 001, A-123"
+                      error={errors.arete}
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <Input
+                      label="Nombre (Opcional)"
+                      value={formData.nombre}
+                      onChange={handleInputChange('nombre')}
+                      placeholder="Ej: Bella, Toro Negro"
+                      error={errors.nombre}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Raza *
+                    </label>
+                    <select
+                      value={formData.raza_id}
+                      onChange={handleInputChange('raza_id')}
+                      className={`w-full px-4 py-3 border-2 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                        errors.raza_id ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                      required
+                    >
+                      <option value="">Seleccionar raza...</option>
+                      {razas.map((raza) => (
+                        <option key={raza.id} value={raza.id}>
+                          {raza.nombre}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.raza_id && (
+                      <p className="text-red-600 text-sm mt-1">{errors.raza_id}</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Sexo *
+                    </label>
+                    <select
+                      value={formData.sexo}
+                      onChange={handleInputChange('sexo')}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      required
+                    >
+                      <option value="Hembra">🐄 Hembra</option>
+                      <option value="Macho">🐂 Macho</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <Input
+                      label="Fecha de Nacimiento *"
+                      type="date"
+                      value={formData.fecha_nacimiento}
+                      onChange={handleInputChange('fecha_nacimiento')}
+                      error={errors.fecha_nacimiento}
+                      required
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      label="Peso (kg) - Opcional"
+                      type="number"
+                      value={formData.peso_kg?.toString() || ''}
+                      onChange={handleInputChange('peso_kg')}
+                      placeholder="Ej: 350"
+                      min="1"
+                      max="2000"
+                      step="0.1"
+                      error={errors.peso_kg}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Ubicación */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <span className="text-2xl">🏠</span>
+                  <span>Ubicación</span>
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      {isEditing ? 'Sitio Actual *' : 'Sitio Inicial *'}
+                    </label>
+                    <select
+                      value={formData.sitio_inicial_id}
+                      onChange={handleInputChange('sitio_inicial_id')}
+                      className={`w-full px-4 py-3 border-2 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors ${
+                        errors.sitio_inicial_id ? 'border-red-300' : 'border-gray-300'
+                      }`}
+                      required
+                    >
+                      <option value="">Seleccionar sitio...</option>
+                      {sitios.map((sitio) => (
+                        <option key={sitio.id} value={sitio.id}>
+                          {sitio.nombre} ({sitio.tipo}) - {sitio.animales_count || 0} animales
+                        </option>
+                      ))}
+                    </select>
+                    {errors.sitio_inicial_id && (
+                      <p className="text-red-600 text-sm mt-1">{errors.sitio_inicial_id}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Genealogía (Opcional) */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <span className="text-2xl">🧬</span>
+                  <span>Genealogía (Opcional)</span>
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Padre
+                    </label>
+                    <select
+                      value={formData.padre_id}
+                      onChange={handleInputChange('padre_id')}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    >
+                      <option value="">Sin padre registrado</option>
+                      {animalesPadres.map((animal) => (
+                        <option key={animal.id} value={animal.id}>
+                          {animal.arete} - {animal.nombre || 'Sin nombre'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Madre
+                    </label>
+                    <select
+                      value={formData.madre_id}
+                      onChange={handleInputChange('madre_id')}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                    >
+                      <option value="">Sin madre registrada</option>
+                      {animalesMadres.map((animal) => (
+                        <option key={animal.id} value={animal.id}>
+                          {animal.arete} - {animal.nombre || 'Sin nombre'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Observaciones */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <span className="text-2xl">📝</span>
+                  <span>Observaciones</span>
+                </h3>
+                
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Notas adicionales (Opcional)
+                  </label>
+                  <textarea
+                    value={formData.observaciones}
+                    onChange={handleInputChange('observaciones')}
+                    placeholder="Cualquier información adicional sobre el animal..."
+                    rows={4}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => navigate('/animales')}
+                  className="flex-1 py-4 text-lg"
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 py-4 text-lg bg-primary-600 hover:bg-primary-700"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Guardando...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Icon name="check" className="w-5 h-5 mr-2" />
+                      <span>{isEditing ? 'Actualizar Animal' : 'Registrar Animal'}</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

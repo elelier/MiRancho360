@@ -2,7 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { AnimalsPage } from './pages/AnimalsPage';
+import { AnimalsListPage } from './pages/AnimalsListPage';
+import { AnimalFormPage } from './pages/AnimalFormPage';
+import { SitesPage } from './pages/SitesPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -82,7 +84,52 @@ function App() {
               path="/animales" 
               element={
                 <ProtectedRoute>
-                  <AnimalsPage />
+                  <AnimalsListPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Formulario crear animal */}
+            <Route 
+              path="/animales/nuevo" 
+              element={
+                <ProtectedRoute>
+                  <AnimalFormPage />
+                </ProtectedRoute>
+              } 
+            />
+            
+            {/* Formulario editar animal */}
+            <Route 
+              path="/animales/:id/editar" 
+              element={
+                <ProtectedRoute>
+                  <AnimalFormPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Vista detalle animal (pendiente de implementar) */}
+            <Route 
+              path="/animales/:id" 
+              element={
+                <ProtectedRoute>
+                  <div className="min-h-screen flex items-center justify-center">
+                    <div className="text-center">
+                      <h1 className="text-2xl font-bold mb-4">🐄 Vista Detalle Animal</h1>
+                      <p className="text-gray-600">Próximamente disponible</p>
+                    </div>
+                  </div>
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Rutas de sitios */}
+            <Route 
+              path="/sitios" 
+              element={
+                <ProtectedRoute>
+                  <SitesPage />
                 </ProtectedRoute>
               } 
             />

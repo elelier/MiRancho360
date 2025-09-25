@@ -34,7 +34,13 @@
   - Interfaz principal funcional
   - Estadísticas y navegación
   - Sistema de movimientos con datos ejemplo
-  - Menú lateral accesible
+  - SideMenu component reutilizable extraído
+
+- [x] 📝 **Formularios Base** (100%)
+  - AnimalFormPage completa con validación
+  - Routing integrado para crear/editar animales
+  - TypeScript interfaces completas
+  - Validación de errores y estados de carga
 
 ### ⚠️ **EN PROGRESO**
 - [ ] 🔗 **Conexión Supabase** (0% - BLOQUEANTE)
@@ -42,13 +48,24 @@
   - Poblar base de datos con datos iniciales
   - Probar conexión real con API
 
-### ❌ **PENDIENTE - CRÍTICO**
-- [ ] 🐄 **Módulo Animales** (20% - Solo servicios)
-  - Lista/tabla de animales
-  - Formulario crear/editar
-  - Vista de detalle
-  - Filtros y búsqueda
+### 🔄 **EN DESARROLLO ACTIVO**
+- [ ] 🐄 **Módulo Animales - Swipe Gestures** (90% - Implementación completada)
+  - ✅ Wireframes completos con UX optimizada para 60+
+  - ✅ Arquitectura de swipe gestures simplificada
+  - ✅ AnimalsListPage con renglones altos (80px) y paleta Rancho Natural
+  - ✅ AnimalRow con swipe táctil izquierda/derecha funcional
+  - ✅ Swipe izquierda → VER DETALLES modal (bg-primary-600)
+  - ✅ Swipe derecha → ACCIONES modal (bg-accent-600)
+  - ✅ AnimalDetailsModal con información completa y botón EDITAR
+  - ✅ AnimalActionsModal con 7 opciones principales (botones 56px)
+  - ✅ MoveAnimalModal funcional para cambio de ubicación
+  - ✅ Filtros: búsqueda, sitio, raza con dropdowns grandes
+  - ✅ Paginación responsive con botones grandes
+  - ✅ Estados visuales por salud (verde/amarillo/rojo)
+  - ✅ Integración completa con routing de React Router
+  - ⏳ Integración con servicios Supabase (pendiente datos reales)
 
+### ❌ **PENDIENTE - PRÓXIMOS**
 - [ ] 🏠 **Módulo Sitios** (20% - Solo servicios)
   - Lista de sitios/corrales
   - Formulario crear/editar
@@ -77,14 +94,23 @@
 ### **📋 Fase 2: Módulo Animales (PRIORIDAD 1)**
 **Objetivo**: CRUD funcional completo de animales
 
-#### **2.1 Página Lista de Animales** ⏰ 4 horas
+#### **2.1 Lista de Animales con Swipe Gestures** ⏰ 5 horas
 ```typescript
-// src/pages/AnimalsPage.tsx
-- Tabla/cards responsivos con animales
-- Filtros: raza, sexo, sitio
-- Búsqueda por arete/nombre  
-- Botones: Crear Nuevo, Ver, Editar
-- Paginación y loading states
+// Nueva arquitectura optimizada para móviles y usuarios 60+
+
+// src/pages/AnimalsListPage.tsx - Página principal
+- Renglones altos (80px) con información jerárquica
+- Colores de fondo según estado (verde/amarillo/rojo)
+- Filtros simples: sitio, raza (dropdowns grandes)
+- Búsqueda en tiempo real por arete/nombre
+- Paginación con botones grandes
+- Infinite scroll + lazy loading
+
+// src/components/animals/AnimalRow.tsx - Renglón con swipe
+- Swipe izquierda → "VER DETALLES" (bg-primary-600)
+- Swipe derecha → "ACCIONES" (bg-accent-600)
+- Estados visuales claros (✅💉🏥)
+- Información en 3 líneas: Arete+Nombre+Raza | Ubicación+Edad+Peso | Estado
 ```
 
 #### **2.2 Formulario de Animales** ⏰ 3 horas  
@@ -97,13 +123,20 @@
 - Manejo de errores
 ```
 
-#### **2.3 Detalle del Animal** ⏰ 2 horas
+#### **2.3 Modals de Interacción** ⏰ 3 horas
 ```typescript  
-// src/pages/AnimalDetailPage.tsx
-- Información completa del animal
-- Historial de movimientos
-- Acciones: editar, mover de sitio
-- Genealogía (padres/hijos)
+// src/components/animals/AnimalDetailsModal.tsx
+- Modal overlay (no nueva página)
+- Información completa: foto, genealogía, historial
+- Sección UBICACIÓN con botón "MOVER DE LUGAR"
+- Botón "EDITAR INFORMACIÓN" integrado
+- Responsive y optimizado para touch
+
+// src/components/animals/AnimalActionsModal.tsx  
+- Modal con 7 acciones principales
+- Botones grandes (56px) con iconos y descripción
+- Acciones: Mover, Vacuna, Observación, Médico, Historial, Peso, Foto
+- Navegación directa a sub-modals específicos
 ```
 
 #### **2.4 Integración con Rutas** ⏰ 30min
@@ -191,9 +224,19 @@
 ---
 
 **🚀 Estado objetivo al final de esta semana:**
-- ✅ Base de datos funcional con datos reales
-- ✅ Módulo de animales 100% operativo
-- ✅ Demo completamente funcional
-- ✅ Usuario puede gestionar su ganado desde la web
+- ⏳ Base de datos funcional con datos reales (pendiente Supabase)
+- ✅ Módulo de animales 90% operativo (solo falta conexión BD)
+- ✅ Interfaz swipe gestures completamente funcional
+- ✅ UX optimizada para usuarios 60+ implementada
+- ⏳ Usuario puede gestionar su ganado desde la web (pendiente datos)
 
-**¿Listo para empezar con Supabase? 🎯**
+**🎯 RESULTADO ACTUAL (24 Sep 2025):**
+✨ **Módulo de Animales con Swipe Gestures IMPLEMENTADO**
+- Lista responsive con renglones altos y colores por estado
+- Swipe táctil natural: ← Detalles | → Acciones  
+- Modals optimizados para touch (botones 56px)
+- Filtros y búsqueda en tiempo real
+- Arquitectura escalable para cientos de animales
+- Paleta Rancho Natural completamente integrada
+
+**🔥 Próximo paso: Conectar con Supabase para datos reales**
