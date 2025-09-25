@@ -64,26 +64,28 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
     const diffX = touchCurrentX - touchStartX.current;
     const minSwipeDistance = 80; // Distancia mínima para activar swipe
     
-    // Lógica bidireccional basada en el estado actual
+    // Lógica bidireccional corregida - sigue el movimiento natural del dedo
     if (Math.abs(diffX) > minSwipeDistance) {
       if (swipeState === 'normal') {
-        // Desde estado normal: swipe izquierda = detalles, derecha = acciones
-        if (diffX < -minSwipeDistance) {
-          setSwipeState('showing-details');
+        // Desde estado normal: 
+        // swipe → derecha = empuja card derecha, revela VER (izquierda)
+        // swipe ← izquierda = empuja card izquierda, revela ACCIONES (derecha)
+        if (diffX > minSwipeDistance) {
+          setSwipeState('showing-details'); // Card se mueve derecha, VER aparece izquierda
           isDragging.current = false;
-        } else if (diffX > minSwipeDistance) {
-          setSwipeState('showing-actions');
+        } else if (diffX < -minSwipeDistance) {
+          setSwipeState('showing-actions'); // Card se mueve izquierda, ACCIONES aparece derecha
           isDragging.current = false;
         }
       } else if (swipeState === 'showing-details') {
-        // Desde detalles: solo swipe derecha regresa a normal
-        if (diffX > minSwipeDistance) {
+        // Desde VER visible: solo swipe ← izquierda regresa a normal
+        if (diffX < -minSwipeDistance) {
           setSwipeState('normal');
           isDragging.current = false;
         }
       } else if (swipeState === 'showing-actions') {
-        // Desde acciones: solo swipe izquierda regresa a normal
-        if (diffX < -minSwipeDistance) {
+        // Desde ACCIONES visible: solo swipe → derecha regresa a normal
+        if (diffX > minSwipeDistance) {
           setSwipeState('normal');
           isDragging.current = false;
         }
