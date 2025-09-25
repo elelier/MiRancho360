@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { Animal } from '../../types/animals';
 import Icon from '../common/Icon';
 
@@ -9,7 +9,9 @@ interface AnimalRowProps {
 }
 
 export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowProps) {
-  const [swipeState, setSwipeState] = useState<'none' | 'left' | 'right'>('none');
+  const [swipeState, setSwipeState] = useState<'normal' | 'showing-details' | 'showing-actions'>('normal');
+  const touchStartX = useRef(0);
+  const isDragging = useRef(false);
   
   // Calcular edad
   const calculateAge = (birthDate: string): string => {
@@ -49,69 +51,104 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
   const age = calculateAge(animal.fecha_nacimiento);
   const sexInfo = getSexInfo(animal.sexo);
 
-  // Handlers de swipe mejorados
-  let touchStartX = 0;
-  let touchCurrentX = 0;
-  let isSwiping = false;
-
+  // Sistema de swipe bidireccional mejorado
   const handleTouchStart = (e: React.TouchEvent) => {
-    touchStartX = e.touches[0].clientX;
-    isSwiping = true;
+    touchStartX.current = e.touches[0].clientX;
+    isDragging.current = true;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isSwiping) return;
+    if (!isDragging.current) return;
     
-    touchCurrentX = e.touches[0].clientX;
-    const diffX = touchCurrentX - touchStartX;
+    const touchCurrentX = e.touches[0].clientX;
+    const diffX = touchCurrentX - touchStartX.current;
+    const minSwipeDistance = 80; // Distancia mínima para activar swipe
     
-    // Solo activar swipe si es un movimiento considerable (>50px)
-    if (Math.abs(diffX) > 50) {
-      if (diffX < -50 && swipeState !== 'left') {
-        setSwipeState('left');
-      } else if (diffX > 50 && swipeState !== 'right') {
-        setSwipeState('right');
+    // Lógica bidireccional basada en el estado actual
+    if (Math.abs(diffX) > minSwipeDistance) {
+      if (swipeState === 'normal') {
+        // Desde estado normal: swipe izquierda = detalles, derecha = acciones
+        if (diffX < -minSwipeDistance) {
+          setSwipeState('showing-details');
+          isDragging.current = false;
+        } else if (diffX > minSwipeDistance) {
+          setSwipeState('showing-actions');
+          isDragging.current = false;
+        }
+      } else if (swipeState === 'showing-details') {
+        // Desde detalles: solo swipe derecha regresa a normal
+        if (diffX > minSwipeDistance) {
+          setSwipeState('normal');
+          isDragging.current = false;
+        }
+      } else if (swipeState === 'showing-actions') {
+        // Desde acciones: solo swipe izquierda regresa a normal
+        if (diffX < -minSwipeDistance) {
+          setSwipeState('normal');
+          isDragging.current = false;
+        }
       }
     }
   };
 
   const handleTouchEnd = () => {
-    isSwiping = false;
+    isDragging.current = false;
   };
 
-  const resetSwipe = () => {
-    setSwipeState('none');
-  };
-
+  // Funciones para ejecutar acciones y regresar a normal
   const handleDetailsClick = () => {
     onShowDetails();
-    resetSwipe();
+    setSwipeState('normal');
   };
 
   const handleActionsClick = () => {
     onShowActions();
-    resetSwipe();
+    setSwipeState('normal');
   };
 
-  // Click en área principal para resetear swipe
-  const handleMainAreaClick = () => {
-    if (swipeState !== 'none') {
-      resetSwipe();
+  // Tap en card para regresar a normal cuando hay opciones visibles
+  const handleCardTap = () => {
+    if (swipeState !== 'normal') {
+      setSwipeState('normal');
     }
   };
 
   return (
-    <div className="relative overflow-hidden">
-      {/* Renglón principal */}
+    <div className="relative overflow-hidden bg-gray-50 rounded-lg">
+      {/* Botones de fondo - aparecen detrás de la card */}
+      {/* Botón Ver Detalles (lado izquierdo) */}
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-primary-600 flex items-center justify-center">
+        <button
+          onClick={handleDetailsClick}
+          className="w-full h-full flex flex-col items-center justify-center text-white font-medium"
+        >
+          <Icon name="eye" className="w-6 h-6 mb-1" />
+          <span className="text-xs">VER</span>
+        </button>
+      </div>
+
+      {/* Botón Acciones (lado derecho) */}
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-accent-600 flex items-center justify-center">
+        <button
+          onClick={handleActionsClick}
+          className="w-full h-full flex flex-col items-center justify-center text-white font-medium"
+        >
+          <Icon name="lightning-bolt" className="w-6 h-6 mb-1" />
+          <span className="text-xs">ACCIONES</span>
+        </button>
+      </div>
+
+      {/* Card principal que se desliza encima */}
       <div
-        className={`${healthStatus.bg} border border-gray-200 rounded-lg p-4 min-h-[80px] transition-transform duration-300 cursor-pointer ${
-          swipeState === 'left' ? 'transform -translate-x-32' : 
-          swipeState === 'right' ? 'transform translate-x-32' : ''
+        className={`${healthStatus.bg} border border-gray-200 rounded-lg p-4 min-h-[80px] relative z-10 transition-transform duration-200 ease-out ${
+          swipeState === 'showing-details' ? 'transform translate-x-32' : 
+          swipeState === 'showing-actions' ? 'transform -translate-x-32' : 'transform translate-x-0'
         }`}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
-        onClick={handleMainAreaClick}
+        onClick={handleCardTap}
+        style={{ touchAction: 'pan-x' }}
       >
         {/* Línea 1: Arete + Nombre + Raza + Sexo */}
         <div className="flex items-center justify-between mb-1">
@@ -143,29 +180,18 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
         <div className="text-sm text-gray-600">
           {healthStatus.text}
         </div>
+
+        {/* Indicador sutil de swipe disponible */}
+        {swipeState === 'normal' && (
+          <div className="absolute right-2 top-1/2 transform -translate-y-1/2 opacity-30">
+            <div className="flex space-x-1">
+              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+            </div>
+          </div>
+        )}
       </div>
-
-      {/* Botón Ver Detalles (swipe izquierda) */}
-      {swipeState === 'left' && (
-        <button
-          onClick={handleDetailsClick}
-          className="absolute left-0 top-0 h-full px-6 bg-primary-600 text-white font-medium flex items-center justify-center min-w-[140px] rounded-l-lg shadow-lg"
-        >
-          <Icon name="eye" className="w-5 h-5 mr-2" />
-          VER DETALLES
-        </button>
-      )}
-
-      {/* Botón Acciones (swipe derecha) */}
-      {swipeState === 'right' && (
-        <button
-          onClick={handleActionsClick}
-          className="absolute right-0 top-0 h-full px-6 bg-accent-600 text-white font-medium flex items-center justify-center min-w-[140px] rounded-r-lg shadow-lg"
-        >
-          <Icon name="lightning-bolt" className="w-5 h-5 mr-2" />
-          ACCIONES
-        </button>
-      )}
     </div>
   );
 }
