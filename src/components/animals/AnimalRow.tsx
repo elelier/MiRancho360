@@ -11,7 +11,9 @@ interface AnimalRowProps {
 export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowProps) {
   const [swipeState, setSwipeState] = useState<'normal' | 'showing-details' | 'showing-actions'>('normal');
   const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
   const isDragging = useRef(false);
+  const isHorizontalSwipe = useRef(false);
   
   // Calcular edad
   const calculateAge = (birthDate: string): string => {
@@ -51,41 +53,61 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
   const age = calculateAge(animal.fecha_nacimiento);
   const sexInfo = getSexInfo(animal.sexo);
 
-  // Sistema de swipe bidireccional mejorado
+  // Sistema de swipe que respeta el scroll vertical
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
     isDragging.current = true;
+    isHorizontalSwipe.current = false;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging.current) return;
     
     const touchCurrentX = e.touches[0].clientX;
+    const touchCurrentY = e.touches[0].clientY;
     const diffX = touchCurrentX - touchStartX.current;
-    const minSwipeDistance = 80; // Distancia mínima para activar swipe
+    const diffY = touchCurrentY - touchStartY.current;
     
-    // Lógica bidireccional corregida - sigue el movimiento natural del dedo
-    if (Math.abs(diffX) > minSwipeDistance) {
+    // Determinar si es swipe horizontal o scroll vertical
+    const absX = Math.abs(diffX);
+    const absY = Math.abs(diffY);
+    
+    // Si aún no hemos determinado la dirección
+    if (!isHorizontalSwipe.current && (absX > 15 || absY > 15)) {
+      // Si el movimiento horizontal es mayor que el vertical, es swipe
+      isHorizontalSwipe.current = absX > absY;
+      
+      // Si es movimiento vertical, permitir scroll nativo
+      if (!isHorizontalSwipe.current) {
+        isDragging.current = false;
+        return;
+      }
+    }
+    
+    // Solo procesar swipes horizontales
+    if (isHorizontalSwipe.current && absX > 80) {
+      // Prevenir scroll durante swipe horizontal
+      e.preventDefault();
+      
+      // Lógica bidireccional - sigue el movimiento natural del dedo
       if (swipeState === 'normal') {
-        // Desde estado normal: 
-        // swipe → derecha = empuja card derecha, revela VER (izquierda)
-        // swipe ← izquierda = empuja card izquierda, revela ACCIONES (derecha)
-        if (diffX > minSwipeDistance) {
-          setSwipeState('showing-details'); // Card se mueve derecha, VER aparece izquierda
+        if (diffX > 80) {
+          setSwipeState('showing-details'); // Card derecha, VER izquierda
           isDragging.current = false;
-        } else if (diffX < -minSwipeDistance) {
-          setSwipeState('showing-actions'); // Card se mueve izquierda, ACCIONES aparece derecha
+        } else if (diffX < -80) {
+          setSwipeState('showing-actions'); // Card izquierda, ACCIONES derecha
           isDragging.current = false;
         }
       } else if (swipeState === 'showing-details') {
-        // Desde VER visible: solo swipe ← izquierda regresa a normal
-        if (diffX < -minSwipeDistance) {
+        // Desde VER: solo swipe izquierda regresa
+        if (diffX < -80) {
           setSwipeState('normal');
           isDragging.current = false;
         }
       } else if (swipeState === 'showing-actions') {
-        // Desde ACCIONES visible: solo swipe → derecha regresa a normal
-        if (diffX > minSwipeDistance) {
+        // Desde ACCIONES: solo swipe derecha regresa
+        if (diffX > 80) {
           setSwipeState('normal');
           isDragging.current = false;
         }
@@ -95,6 +117,7 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
 
   const handleTouchEnd = () => {
     isDragging.current = false;
+    isHorizontalSwipe.current = false;
   };
 
   // Funciones para ejecutar acciones y regresar a normal
@@ -150,7 +173,7 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         onClick={handleCardTap}
-        style={{ touchAction: 'pan-x' }}
+        style={{ touchAction: 'pan-y' }}
       >
         {/* Línea 1: Arete + Nombre + Raza + Sexo */}
         <div className="flex items-center justify-between mb-1">
