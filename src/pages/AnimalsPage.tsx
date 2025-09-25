@@ -67,7 +67,11 @@ export function AnimalsPage() {
       <div className="min-h-screen bg-background">
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
-            <div className="text-6xl mb-4">❌</div>
+            <div className="mb-4 flex justify-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <span className="text-4xl text-red-600">!</span>
+              </div>
+            </div>
             <h1 className="text-2xl font-bold text-red-600 mb-2">Error al cargar animales</h1>
             <p className="text-gray-600 mb-4">{error}</p>
             <Button onClick={reload}>Intentar de nuevo</Button>
@@ -226,7 +230,9 @@ export function AnimalsPage() {
             </div>
           ) : filteredAnimals.length === 0 ? (
             <div className="text-center py-12 lg:py-20">
-              <div className="text-4xl lg:text-8xl mb-4">🐄</div>
+              <div className="mb-4 flex justify-center">
+                <Icon name="cow-large" className="w-16 h-16 lg:w-32 lg:h-32 text-primary-400" />
+              </div>
               <h3 className="text-xl lg:text-3xl font-bold text-gray-900 mb-2">No hay animales</h3>
               <p className="text-gray-600 mb-6 text-base lg:text-xl max-w-2xl mx-auto">
                 {searchTerm || Object.keys(filters).length > 1 
