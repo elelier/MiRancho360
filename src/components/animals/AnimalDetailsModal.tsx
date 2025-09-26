@@ -1,7 +1,7 @@
 import type { Animal } from '../../types/animals';
 import Icon from '../common/Icon';
-import { PhotoGallery } from './PhotoGallery';
-import { useAuth } from '../../hooks/useAuth';
+import { PrincipalPhotoDisplay } from './PrincipalPhotoDisplay';
+
 
 interface AnimalDetailsModalProps {
   animal: Animal;
@@ -11,7 +11,7 @@ interface AnimalDetailsModalProps {
 }
 
 export function AnimalDetailsModal({ animal, onClose, onEdit, onMove }: AnimalDetailsModalProps) {
-  const { usuario } = useAuth();
+
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -34,10 +34,10 @@ export function AnimalDetailsModal({ animal, onClose, onEdit, onMove }: AnimalDe
         <div className="p-4 space-y-6">
           {/* Álbum de Fotos */}
           <div>
-            <PhotoGallery
+            <PrincipalPhotoDisplay
               animalId={animal.id}
               animalArete={animal.arete}
-              usuarioId={usuario?.id || ''}
+              animalNombre={animal.nombre}
             />
           </div>
 

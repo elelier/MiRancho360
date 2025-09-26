@@ -5,7 +5,7 @@ import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
 import { SideMenu } from '../components/common/SideMenu';
 import { PhotoUpload } from '../components/common/PhotoUpload';
-import { PhotoGallery } from '../components/animals/PhotoGallery';
+import { PrincipalPhotoDisplay } from '../components/animals/PrincipalPhotoDisplay';
 import { AnimalSelector } from '../components/animals/AnimalSelector';
 import { useAnimals, useRazas, useAnimal } from '../hooks/useAnimals';
 import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
@@ -382,11 +382,11 @@ export function AnimalFormPage() {
                 </h3>
                 
                 {isEditing && animal ? (
-                  /* Álbum completo para animales existentes */
-                  <PhotoGallery
+                  /* Foto principal con acceso al álbum completo */
+                  <PrincipalPhotoDisplay
                     animalId={animal.id}
                     animalArete={animal.arete}
-                    usuarioId={usuario?.id || ''}
+                    animalNombre={animal.nombre}
                   />
                 ) : (
                   /* Upload simple para animales nuevos */

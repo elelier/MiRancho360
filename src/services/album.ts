@@ -51,16 +51,20 @@ export const albumService = {
     const nuevoOrden = albumActual.total;
 
     try {
+      const insertData = {
+        animal_id: animalId,
+        foto_url: uploadResult.url!,
+        descripcion: fotoData.descripcion || null,
+        es_principal: esPrincipal,
+        orden: nuevoOrden,
+        usuario_subida: usuarioId
+      };
+      
+      console.log('🗃️ Datos para insertar en animal_fotos:', insertData);
+
       const { data, error } = await supabase
         .from('animal_fotos')
-        .insert({
-          animal_id: animalId,
-          foto_url: uploadResult.url!,
-          descripcion: fotoData.descripcion || null,
-          es_principal: esPrincipal,
-          orden: nuevoOrden,
-          usuario_subida: usuarioId
-        })
+        .insert(insertData)
         .select()
         .single();
 
@@ -149,19 +153,22 @@ export const albumService = {
 
   // Obtener solo la foto principal de un animal (para listas)
   async getPrincipalPhoto(animalId: string): Promise<AnimalFoto | null> {
+    console.log('🔍 Buscando foto principal para animal:', animalId);
+    
     const { data, error } = await supabase
       .from('animal_fotos')
       .select('*')
       .eq('animal_id', animalId)
       .eq('es_principal', true)
-      .single();
+      .maybeSingle();
 
     if (error) {
-      if (error.code === 'PGRST116') return null; // No encontrado
+      console.error('❌ Error obteniendo foto principal:', error);
       throw error;
     }
-
-    return data as AnimalFoto;
+    
+    console.log('✅ Foto principal encontrada:', data);
+    return data as AnimalFoto | null;
   },
 
   // Obtener estadísticas del álbum
