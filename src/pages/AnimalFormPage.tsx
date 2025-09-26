@@ -4,6 +4,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
 import { SideMenu } from '../components/common/SideMenu';
+import { AnimalSelector } from '../components/animals/AnimalSelector';
 import { useAnimals, useRazas, useAnimal } from '../hooks/useAnimals';
 import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
 import { useAuth } from '../hooks/useAuth';
@@ -150,9 +151,8 @@ export function AnimalFormPage() {
     }
   };
 
-  // Obtener animales para selección de padres (por ahora vacío, se puede implementar después)
-  const animalesPadres: Array<{id: string, arete: string, nombre?: string}> = [];
-  const animalesMadres: Array<{id: string, arete: string, nombre?: string}> = [];
+  // Obtener todos los animales para selección de padres
+  const { animals: todosLosAnimales } = useAnimals();
 
   if (loadingAnimal || loadingRazas || loadingSitios) {
     return (
@@ -412,41 +412,25 @@ export function AnimalFormPage() {
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Padre
-                    </label>
-                    <select
-                      value={formData.padre_id}
-                      onChange={handleInputChange('padre_id')}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                    >
-                      <option value="">Sin padre registrado</option>
-                      {animalesPadres.map((animal) => (
-                        <option key={animal.id} value={animal.id}>
-                          {animal.arete} - {animal.nombre || 'Sin nombre'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <AnimalSelector
+                    label="🚹 Padre"
+                    value={formData.padre_id}
+                    onChange={(animalId) => setFormData(prev => ({ ...prev, padre_id: animalId }))}
+                    animals={todosLosAnimales || []}
+                    filterBySex="Macho"
+                    placeholder="Buscar padre por arete, nombre o raza..."
+                    excludeAnimalId={id}
+                  />
 
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2">
-                      Madre
-                    </label>
-                    <select
-                      value={formData.madre_id}
-                      onChange={handleInputChange('madre_id')}
-                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                    >
-                      <option value="">Sin madre registrada</option>
-                      {animalesMadres.map((animal) => (
-                        <option key={animal.id} value={animal.id}>
-                          {animal.arete} - {animal.nombre || 'Sin nombre'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  <AnimalSelector
+                    label="🚺 Madre"
+                    value={formData.madre_id}
+                    onChange={(animalId) => setFormData(prev => ({ ...prev, madre_id: animalId }))}
+                    animals={todosLosAnimales || []}
+                    filterBySex="Hembra"
+                    placeholder="Buscar madre por arete, nombre o raza..."
+                    excludeAnimalId={id}
+                  />
                 </div>
               </div>
 
