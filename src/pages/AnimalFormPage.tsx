@@ -5,6 +5,7 @@ import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
 import { SideMenu } from '../components/common/SideMenu';
 import { PhotoUpload } from '../components/common/PhotoUpload';
+import { PhotoGallery } from '../components/animals/PhotoGallery';
 import { AnimalSelector } from '../components/animals/AnimalSelector';
 import { useAnimals, useRazas, useAnimal } from '../hooks/useAnimals';
 import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
@@ -380,12 +381,22 @@ export function AnimalFormPage() {
                   <span>Identificación Visual</span>
                 </h3>
                 
-                <PhotoUpload
-                  label="Foto del Animal (Opcional)"
-                  value={formData.foto}
-                  onChange={(file) => setFormData(prev => ({ ...prev, foto: file }))}
-                  error={errors.foto}
-                />
+                {isEditing && animal ? (
+                  /* Álbum completo para animales existentes */
+                  <PhotoGallery
+                    animalId={animal.id}
+                    animalArete={animal.arete}
+                    usuarioId={usuario?.id || ''}
+                  />
+                ) : (
+                  /* Upload simple para animales nuevos */
+                  <PhotoUpload
+                    label="Primera Foto del Animal (Opcional)"
+                    value={formData.foto}
+                    onChange={(file) => setFormData(prev => ({ ...prev, foto: file }))}
+                    error={errors.foto}
+                  />
+                )}
               </div>
 
               {/* Ubicación */}

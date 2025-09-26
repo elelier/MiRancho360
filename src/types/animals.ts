@@ -18,7 +18,9 @@ export interface Animal {
   observaciones?: string; // Campo opcional - Notas
   estado: 'Activo' | 'Vendido' | 'Muerto'; // Estado del animal - Campo obligatorio
   activo: boolean; // Para compatibilidad con DB actual
-  foto_url?: string; // URL de la foto del animal en Supabase Storage
+  foto_url?: string; // URL de la foto principal (legacy - usar fotos[])
+  fotos?: AnimalFoto[]; // Álbum de fotos del animal
+  foto_principal?: AnimalFoto; // Foto principal para vista rápida
   fecha_registro: string;
   usuario_registro: string;
   fecha_actualizacion?: string;
@@ -67,4 +69,28 @@ export interface AnimalFilters {
   activo?: boolean; // Filtro legacy por campo activo
   estado?: 'Activo' | 'Vendido' | 'Muerto'; // Nuevo filtro por estado
   busqueda?: string; // Para buscar por arete o nombre
+}
+
+// Nuevos tipos para el álbum de fotos
+export interface AnimalFoto {
+  id: string;
+  animal_id: string;
+  foto_url: string;
+  descripcion?: string;
+  es_principal: boolean;
+  orden: number;
+  fecha_subida: string;
+  usuario_subida: string;
+}
+
+export interface AnimalFotoFormData {
+  archivo: File;
+  descripcion?: string;
+  es_principal?: boolean;
+}
+
+export interface AlbumFotos {
+  total: number;
+  fotos: AnimalFoto[];
+  foto_principal?: AnimalFoto;
 }
