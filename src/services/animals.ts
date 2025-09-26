@@ -13,8 +13,18 @@ export const animalsService = {
         raza:razas(*),
         sitio_actual:sitios(*)
       `)
-      .eq('activo', filters?.activo ?? true)
       .order('fecha_registro', { ascending: false });
+
+    // Filtrar por estado (prioridad sobre activo)
+    if (filters?.estado) {
+      query = query.eq('estado', filters.estado);
+    } else if (filters?.activo !== undefined) {
+      // Mantener compatibilidad con filtro legacy 'activo'
+      query = query.eq('activo', filters.activo);
+    } else {
+      // Por defecto mostrar solo animales activos
+      query = query.eq('estado', 'Activo');
+    }
 
     if (filters?.raza) {
       query = query.eq('raza_id', filters.raza);
@@ -58,45 +68,107 @@ export const animalsService = {
 
   // Crear un nuevo animal
   async createAnimal(animalData: AnimalFormData, usuarioId: string) {
+    // Mantener activo=true para animales Activo, false para Vendido/Muerto (compatibilidad)
+    const activo = animalData.estado === 'Activo';
+    
     const { data, error } = await supabase
       .from('animales')
       .insert({
-        ...animalData,
+        arete: animalData.arete,
+        nombre: animalData.nombre,
+        raza_id: animalData.raza_id,
+        sexo: animalData.sexo,
+        fecha_nacimiento: animalData.fecha_nacimiento,
+        peso_kg: animalData.peso_kg,
         sitio_actual_id: animalData.sitio_inicial_id,
+        padre_id: animalData.padre_id || null,
+        madre_id: animalData.madre_id || null,
+        observaciones: animalData.observaciones,
+        estado: animalData.estado,
         usuario_registro: usuarioId,
-        activo: true
+        activo: activo
       })
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('❌ Error de Supabase al crear animal:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+      });
+      throw error;
+    }
 
-    // Registrar movimiento inicial
-    await movimientosService.createMovimiento({
-      animal_id: data.id,
-      sitio_destino_id: animalData.sitio_inicial_id,
-      fecha_movimiento: new Date().toISOString(),
-      motivo: 'Nacimiento',
-      observaciones: 'Registro inicial del animal'
-    }, usuarioId);
+
+    
+    // Registrar movimiento inicial basado en el estado
+    let motivo: 'Nacimiento' | 'Compra' | 'Venta' | 'Muerte' = 'Nacimiento';
+    let observaciones = 'Registro inicial del animal';
+
+    if (animalData.estado === 'Vendido') {
+      motivo = 'Venta';
+      observaciones = 'Animal registrado como vendido';
+    } else if (animalData.estado === 'Muerto') {
+      motivo = 'Muerte';
+      observaciones = 'Animal registrado como fallecido';
+    }
+
+    try {
+      await movimientosService.createMovimiento({
+        animal_id: data.id,
+        sitio_destino_id: animalData.sitio_inicial_id,
+        fecha_movimiento: new Date().toISOString(),
+        motivo: motivo,
+        observaciones: observaciones
+      }, usuarioId);
+    } catch (movError) {
+      // Si falla el movimiento, no fallar toda la operación
+      console.warn('No se pudo registrar el movimiento inicial:', movError);
+    }
 
     return data as Animal;
   },
 
   // Actualizar un animal
   async updateAnimal(id: string, animalData: Partial<AnimalFormData>, usuarioId: string) {
+    // Si se está cambiando el estado, actualizar también el campo activo
+    const updateData: Partial<AnimalFormData> & {
+      usuario_actualizacion: string;
+      fecha_actualizacion: string;
+      activo?: boolean;
+    } = {
+      ...animalData,
+      usuario_actualizacion: usuarioId,
+      fecha_actualizacion: new Date().toISOString()
+    };
+
+    if (animalData.estado) {
+      updateData.activo = animalData.estado === 'Activo';
+    }
+
     const { data, error } = await supabase
       .from('animales')
-      .update({
-        ...animalData,
-        usuario_actualizacion: usuarioId,
-        fecha_actualizacion: new Date().toISOString()
-      })
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
+
+    // Si se cambió el estado a Vendido o Muerto, registrar movimiento
+    if (animalData.estado && animalData.estado !== 'Activo') {
+      const motivo = animalData.estado === 'Vendido' ? 'Venta' : 'Muerte';
+      await movimientosService.createMovimiento({
+        animal_id: id,
+        sitio_destino_id: data.sitio_actual_id, // Mantener el sitio actual
+        fecha_movimiento: new Date().toISOString(),
+        motivo: motivo,
+        observaciones: `Animal marcado como ${animalData.estado.toLowerCase()}`
+      }, usuarioId);
+    }
+
     return data as Animal;
   },
 

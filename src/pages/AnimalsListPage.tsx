@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAnimals } from '../hooks/useAnimals';
 import { useAuth } from '../hooks/useAuth';
 import type { Animal } from '../types/animals';
@@ -17,6 +18,7 @@ interface FilterState {
 }
 
 export function AnimalsListPage() {
+  const navigate = useNavigate();
   const { usuario } = useAuth();
   const { animals, isLoading, error, reload } = useAnimals();
   
@@ -231,7 +233,10 @@ export function AnimalsListPage() {
                 }
               </p>
               {(!filters.search && !filters.sitio && !filters.raza) && (
-                <button className="bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 inline-flex items-center">
+                <button 
+                  onClick={() => navigate('/animales/nuevo')}
+                  className="bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 inline-flex items-center"
+                >
                   <Icon name="plus" className="w-5 h-5 mr-2" />
                   Agregar Primer Animal
                 </button>
@@ -317,7 +322,10 @@ export function AnimalsListPage() {
       )}
 
       {/* Botón flotante para nuevo animal */}
-      <button className="fixed bottom-6 right-6 bg-accent-600 text-white p-4 rounded-full shadow-lg hover:bg-accent-700 z-50">
+      <button 
+        onClick={() => navigate('/animales/nuevo')}
+        className="fixed bottom-6 right-6 bg-accent-600 text-white p-4 rounded-full shadow-lg hover:bg-accent-700 z-50"
+      >
         <Icon name="plus" className="w-6 h-6" />
       </button>
 

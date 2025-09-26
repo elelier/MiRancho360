@@ -41,7 +41,8 @@ export function AnimalFormPage() {
     sitio_inicial_id: '',
     padre_id: '',
     madre_id: '',
-    observaciones: ''
+    observaciones: '',
+    estado: 'Activo'
   });
 
   // Cargar datos del animal si estamos editando
@@ -57,7 +58,8 @@ export function AnimalFormPage() {
         sitio_inicial_id: animal.sitio_actual_id,
         padre_id: animal.padre_id || '',
         madre_id: animal.madre_id || '',
-        observaciones: animal.observaciones || ''
+        observaciones: animal.observaciones || '',
+        estado: animal.estado || 'Activo'
       });
     }
   }, [isEditing, animal]);
@@ -123,6 +125,9 @@ export function AnimalFormPage() {
     if (!validateForm() || !usuario) return;
 
     setIsSubmitting(true);
+    
+
+    
     try {
       if (isEditing && id) {
         await updateAnimal(id, formData, usuario.id);
@@ -130,8 +135,8 @@ export function AnimalFormPage() {
           state: { message: 'Animal actualizado exitosamente' }
         });
       } else {
-        const newAnimal = await createAnimal(formData, usuario.id);
-        navigate(`/animales/${newAnimal.id}`, { 
+        await createAnimal(formData, usuario.id);
+        navigate('/animales', { 
           state: { message: 'Animal registrado exitosamente' }
         });
       }
@@ -319,6 +324,22 @@ export function AnimalFormPage() {
                     >
                       <option value="Hembra">🐄 Hembra</option>
                       <option value="Macho">🐂 Macho</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Estado *
+                    </label>
+                    <select
+                      value={formData.estado}
+                      onChange={handleInputChange('estado')}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl text-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                      required
+                    >
+                      <option value="Activo">✅ Activo</option>
+                      <option value="Vendido">💰 Vendido</option>
+                      <option value="Muerto">💔 Muerto</option>
                     </select>
                   </div>
 

@@ -31,7 +31,8 @@ export function useAnimals(filters?: AnimalFilters) {
       setAnimals(prev => [newAnimal, ...prev]);
       return newAnimal;
     } catch (err) {
-      throw new Error(err instanceof Error ? err.message : 'Error al crear animal');
+      console.error('Error al crear animal:', err);
+      throw err;
     }
   };
 

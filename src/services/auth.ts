@@ -3,15 +3,15 @@ import type { Usuario, UsuarioFormData, SesionAuth } from '../types';
 
 // ========== AUTENTICACIÓN TEMPORAL (SIN SUPABASE) ==========
 
-// Usuario temporal para desarrollo
+// Usuario real de producción de Supabase
 const TEMP_USER: Usuario = {
-  id: 'temp-admin-id',
+  id: 'b0eb53d4-2754-4762-8642-4c63236dd211', // ID real de la BD
   nombre: 'Administrador',
-  email: 'admin@mirancho360.com',
+  email: 'admin@rancho.com',
   rol: 'administrador',
-  pin: '1234', // PIN temporal para desarrollo
+  pin: '1234',
   activo: true,
-  fecha_registro: new Date().toISOString(),
+  fecha_registro: '2025-09-24T01:04:48.804196Z',
   ultimo_acceso: new Date().toISOString()
 };
 
@@ -90,6 +90,14 @@ export const authService = {
   // Logout
   async logout() {
     localStorage.removeItem('mirancho_session');
+  },
+
+  // Forzar limpieza de sesión y nuevo login (para desarrollo)
+  async forceCleanSession() {
+    console.log('🧹 Limpiando sesión y forzando nuevo login...');
+    localStorage.removeItem('mirancho_session');
+    // Recargar la página para forzar nuevo login
+    window.location.reload();
   },
 
   // Obtener sesión actual
