@@ -18,6 +18,7 @@ export interface Animal {
   observaciones?: string; // Campo opcional - Notas
   estado: 'Activo' | 'Vendido' | 'Muerto'; // Estado del animal - Campo obligatorio
   activo: boolean; // Para compatibilidad con DB actual
+  foto_url?: string; // URL de la foto del animal en Supabase Storage
   fecha_registro: string;
   usuario_registro: string;
   fecha_actualizacion?: string;
@@ -56,6 +57,7 @@ export interface AnimalFormData {
   madre_id?: string; // Campo opcional - Para genealogía
   observaciones?: string; // Campo opcional - Notas
   estado: 'Activo' | 'Vendido' | 'Muerto'; // Campo obligatorio - Estado del animal
+  foto?: File | string | null; // Campo opcional - Foto del animal
 }
 
 export interface AnimalFilters {

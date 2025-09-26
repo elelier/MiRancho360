@@ -4,6 +4,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
 import { SideMenu } from '../components/common/SideMenu';
+import { PhotoUpload } from '../components/common/PhotoUpload';
 import { AnimalSelector } from '../components/animals/AnimalSelector';
 import { useAnimals, useRazas, useAnimal } from '../hooks/useAnimals';
 import { useSitiosConAnimales } from '../hooks/useSitiosConAnimales';
@@ -43,7 +44,8 @@ export function AnimalFormPage() {
     padre_id: '',
     madre_id: '',
     observaciones: '',
-    estado: 'Activo'
+    estado: 'Activo',
+    foto: null
   });
 
   // Cargar datos del animal si estamos editando
@@ -60,7 +62,8 @@ export function AnimalFormPage() {
         padre_id: animal.padre_id || '',
         madre_id: animal.madre_id || '',
         observaciones: animal.observaciones || '',
-        estado: animal.estado || 'Activo'
+        estado: animal.estado || 'Activo',
+        foto: animal.foto_url || null
       });
     }
   }, [isEditing, animal]);
@@ -368,6 +371,21 @@ export function AnimalFormPage() {
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Identificación Visual */}
+              <div>
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center space-x-3">
+                  <span className="text-2xl">📸</span>
+                  <span>Identificación Visual</span>
+                </h3>
+                
+                <PhotoUpload
+                  label="Foto del Animal (Opcional)"
+                  value={formData.foto}
+                  onChange={(file) => setFormData(prev => ({ ...prev, foto: file }))}
+                  error={errors.foto}
+                />
               </div>
 
               {/* Ubicación */}

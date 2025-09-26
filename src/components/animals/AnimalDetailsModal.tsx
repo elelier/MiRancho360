@@ -28,14 +28,41 @@ export function AnimalDetailsModal({ animal, onClose, onEdit, onMove }: AnimalDe
 
         {/* Content */}
         <div className="p-4 space-y-6">
-          {/* Foto del Animal (separada) */}
+          {/* Foto del Animal */}
           <div className="text-center">
-            <div className="w-32 h-32 mx-auto bg-gray-100 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-              <div className="text-center text-gray-500">
-                <Icon name="camera" className="w-8 h-8 mx-auto mb-2" />
-                <p className="text-sm">Foto del Animal</p>
+            {animal.foto_url ? (
+              <div className="relative inline-block">
+                <img
+                  src={animal.foto_url}
+                  alt={`Foto de ${animal.arete}${animal.nombre ? ` - ${animal.nombre}` : ''}`}
+                  className="w-64 h-64 mx-auto object-cover rounded-xl border-4 border-primary-200 shadow-lg"
+                  onError={(e) => {
+                    // Si falla la carga de imagen, mostrar placeholder
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                    const placeholder = target.nextElementSibling as HTMLElement;
+                    if (placeholder) placeholder.style.display = 'flex';
+                  }}
+                />
+                <div className="hidden w-64 h-64 mx-auto bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <Icon name="camera" className="w-8 h-8 mx-auto mb-2" />
+                    <p className="text-sm">Error cargando foto</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-2 right-2 bg-primary-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  📸 Foto del animal
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="w-64 h-64 mx-auto bg-gray-100 rounded-xl border-2 border-dashed border-gray-300 flex items-center justify-center">
+                <div className="text-center text-gray-500">
+                  <Icon name="camera" className="w-8 h-8 mx-auto mb-2" />
+                  <p className="text-sm font-medium">Sin foto</p>
+                  <p className="text-xs">No se ha agregado una foto para este animal</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Información General */}

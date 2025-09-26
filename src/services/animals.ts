@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { uploadAnimalPhoto, updateAnimalPhoto, deleteAnimalPhoto } from './imageUpload';
 import type { Animal, AnimalFormData, AnimalFilters, MovimientoAnimal, Raza } from '../types';
 
 // ========== ANIMALES ==========
@@ -71,6 +72,16 @@ export const animalsService = {
     // Mantener activo=true para animales Activo, false para Vendido/Muerto (compatibilidad)
     const activo = animalData.estado === 'Activo';
     
+    // Subir foto si existe
+    let fotoUrl = null;
+    if (animalData.foto && animalData.foto instanceof File) {
+      const uploadResult = await uploadAnimalPhoto(animalData.foto, animalData.arete);
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Error al subir la foto');
+      }
+      fotoUrl = uploadResult.url;
+    }
+    
     const { data, error } = await supabase
       .from('animales')
       .insert({
@@ -86,12 +97,18 @@ export const animalsService = {
         observaciones: animalData.observaciones,
         estado: animalData.estado,
         usuario_registro: usuarioId,
-        activo: activo
+        activo: activo,
+        foto_url: fotoUrl
       })
       .select()
       .single();
 
     if (error) {
+      // Si falla la creación del animal pero se subió la foto, eliminarla
+      if (fotoUrl) {
+        await deleteAnimalPhoto(fotoUrl);
+      }
+      
       console.error('❌ Error de Supabase al crear animal:', {
         message: error.message,
         details: error.details,
@@ -133,16 +150,53 @@ export const animalsService = {
 
   // Actualizar un animal
   async updateAnimal(id: string, animalData: Partial<AnimalFormData>, usuarioId: string) {
+    // Obtener datos actuales del animal para manejar la foto
+    const { data: currentAnimal } = await supabase
+      .from('animales')
+      .select('arete, foto_url')
+      .eq('id', id)
+      .single();
+
+    // Manejar actualización de foto
+    let fotoUrl = currentAnimal?.foto_url;
+    if (animalData.foto !== undefined) {
+      if (animalData.foto instanceof File) {
+        // Subir nueva foto
+        const uploadResult = await updateAnimalPhoto(
+          animalData.foto, 
+          currentAnimal?.arete || 'unknown',
+          currentAnimal?.foto_url
+        );
+        if (!uploadResult.success) {
+          throw new Error(uploadResult.error || 'Error al subir la foto');
+        }
+        fotoUrl = uploadResult.url;
+      } else if (animalData.foto === null && currentAnimal?.foto_url) {
+        // Eliminar foto existente
+        await deleteAnimalPhoto(currentAnimal.foto_url);
+        fotoUrl = null;
+      }
+    }
+
     // Si se está cambiando el estado, actualizar también el campo activo
     const updateData: Partial<AnimalFormData> & {
       usuario_actualizacion: string;
       fecha_actualizacion: string;
       activo?: boolean;
+      foto_url?: string | null;
     } = {
       ...animalData,
       usuario_actualizacion: usuarioId,
       fecha_actualizacion: new Date().toISOString()
     };
+
+    // No incluir el campo foto en la actualización de BD
+    delete updateData.foto;
+    
+    // Agregar la URL de la foto si cambió
+    if (animalData.foto !== undefined) {
+      updateData.foto_url = fotoUrl;
+    }
 
     if (animalData.estado) {
       updateData.activo = animalData.estado === 'Activo';
