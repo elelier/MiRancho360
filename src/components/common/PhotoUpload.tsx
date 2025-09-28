@@ -117,12 +117,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
           /* Área de carga cuando no hay foto */
           <div className="mb-4 bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
             <div className="text-6xl mb-4">📷</div>
-            <p className="text-lg text-gray-600 mb-2 font-medium">
-              Sin foto del animal
-            </p>
-            <p className="text-sm text-gray-500">
-              Agrega una foto para identificar visualmente al animal
-            </p>
           </div>
         )}
 
@@ -175,18 +169,6 @@ export const PhotoUpload: React.FC<PhotoUploadProps> = ({
         {/* Información adicional */}
         <div className="mt-4 text-sm text-gray-500 bg-blue-50 p-3 rounded-lg">
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 mt-0.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <div>
-              <p className="font-medium text-blue-800 mb-1">💡 Consejos para la foto:</p>
-              <ul className="space-y-1 text-blue-700">
-                <li>• Toma la foto con buena luz natural</li>
-                <li>• Asegúrate que se vea claramente el arete</li>
-                <li>• Incluye características distintivas</li>
-                <li>• Máximo 5MB (JPG, PNG, WEBP)</li>
-              </ul>
-            </div>
           </div>
         </div>
 

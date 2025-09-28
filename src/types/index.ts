@@ -4,6 +4,7 @@ export * from './sites';
 export * from './auth';
 export * from './movements';
 export * from './alerts';
+export * from './health';
 
 // Tipos comunes de la aplicación
 export interface ApiResponse<T> {

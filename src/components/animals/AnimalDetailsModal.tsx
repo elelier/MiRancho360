@@ -1,6 +1,7 @@
 import type { Animal } from '../../types/animals';
 import Icon from '../common/Icon';
 import { PrincipalPhotoDisplay } from './PrincipalPhotoDisplay';
+import { HealthHistory } from './HealthHistory';
 
 
 interface AnimalDetailsModalProps {
@@ -15,7 +16,7 @@ export function AnimalDetailsModal({ animal, onClose, onEdit, onMove }: AnimalDe
   
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
@@ -169,6 +170,15 @@ export function AnimalDetailsModal({ animal, onClose, onEdit, onMove }: AnimalDe
               </div>
             </div>
           )}
+
+          {/* Historial de Salud */}
+          <div>
+            <HealthHistory
+              animalId={animal.id}
+              animalArete={animal.arete}
+              animalNombre={animal.nombre}
+            />
+          </div>
         </div>
 
         {/* Footer */}

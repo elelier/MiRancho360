@@ -118,6 +118,30 @@ export const animalsService = {
       throw error;
     }
 
+    // Si se subió una foto, registrarla también en la tabla animal_fotos como principal
+    if (fotoUrl && data) {
+      try {
+        console.log('📷 Registrando foto en animal_fotos para animal:', data.id);
+        
+        await supabase
+          .from('animal_fotos')
+          .insert({
+            animal_id: data.id,
+            foto_url: fotoUrl,
+            descripcion: 'Foto inicial del animal',
+            es_principal: true,
+            orden: 0,
+            usuario_subida: usuarioId
+          });
+        
+        console.log('✅ Foto registrada correctamente en animal_fotos');
+      } catch (fotoError) {
+        // No fallar la creación del animal si falla el registro de la foto
+        console.error('⚠️ Error registrando foto en animal_fotos:', fotoError);
+        // La foto ya está en foto_url del animal, así que no es crítico
+      }
+    }
+
 
     
     // Registrar movimiento inicial basado en el estado
@@ -210,6 +234,51 @@ export const animalsService = {
       .single();
 
     if (error) throw error;
+
+    // Si se cambió la foto, sincronizar con animal_fotos
+    if (animalData.foto !== undefined && data) {
+      try {
+        if (fotoUrl && animalData.foto instanceof File) {
+          console.log('📷 Actualizando foto en animal_fotos para animal:', id);
+          
+          // Verificar si ya existe una foto principal
+          const { data: existingPhoto } = await supabase
+            .from('animal_fotos')
+            .select('id')
+            .eq('animal_id', id)
+            .eq('es_principal', true)
+            .single();
+
+          if (existingPhoto) {
+            // Actualizar foto existente
+            await supabase
+              .from('animal_fotos')
+              .update({
+                foto_url: fotoUrl,
+                usuario_subida: usuarioId,
+                fecha_subida: new Date().toISOString()
+              })
+              .eq('id', existingPhoto.id);
+          } else {
+            // Crear nueva entrada en animal_fotos
+            await supabase
+              .from('animal_fotos')
+              .insert({
+                animal_id: id,
+                foto_url: fotoUrl,
+                descripcion: 'Foto actualizada del animal',
+                es_principal: true,
+                orden: 0,
+                usuario_subida: usuarioId
+              });
+          }
+          
+          console.log('✅ Foto sincronizada correctamente en animal_fotos');
+        }
+      } catch (fotoError) {
+        console.error('⚠️ Error sincronizando foto en animal_fotos:', fotoError);
+      }
+    }
 
     // Si se cambió el estado a Vendido o Muerto, registrar movimiento
     if (animalData.estado && animalData.estado !== 'Activo') {

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { albumService } from '../../services/album';
 import { PhotoUpload } from '../common/PhotoUpload';
 import { useAuth } from '../../hooks/useAuth';
+import Icon from '../common/Icon';
 import type { AnimalFoto, AlbumFotos } from '../../types/animals';
 
 interface PhotoGalleryModalProps {
@@ -242,7 +243,7 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
                     onClick={() => setShowUploadArea(true)}
                     className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-primary-600 hover:to-primary-700 transform hover:scale-105 transition-all duration-200"
                   >
-                    <span className="text-2xl">�</span>
+                    <Icon name="cow-large" className="w-6 h-6" />
                     <span>Agregar Otra Foto</span>
                     <span className="text-sm opacity-75">({album.total}/10)</span>
                   </button>

@@ -25,16 +25,41 @@ export const authService = {
       if (pin === '1234') {
         console.log('✅ PIN correcto, creando sesión...');
         
-        // Crear sesión local
+        // NUEVO: Crear sesión real en Supabase
+        // Usar credenciales temporales para autenticación
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email: 'admin@rancho.com',
+          password: 'admin123' // Temporal para desarrollo
+        });
+
+        if (authError) {
+          console.log('⚠️ Error autenticando con Supabase, usando sesión local:', authError.message);
+          
+          // Si falla la auth de Supabase, usar sesión local
+          const session: SesionAuth = {
+            usuario: TEMP_USER,
+            token: generateSessionToken(),
+            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+          };
+
+          localStorage.setItem('mirancho_session', JSON.stringify(session));
+          return session;
+        }
+
+        console.log('✅ Autenticado con Supabase:', authData.user?.id);
+        
+        // Crear sesión local con usuario autenticado
         const session: SesionAuth = {
-          usuario: TEMP_USER,
+          usuario: {
+            ...TEMP_USER,
+            id: authData.user?.id || TEMP_USER.id
+          },
           token: generateSessionToken(),
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         };
 
-        // Guardar en localStorage
         localStorage.setItem('mirancho_session', JSON.stringify(session));
-        console.log('💾 Sesión guardada en localStorage');
+        console.log('💾 Sesión guardada con autenticación de Supabase');
 
         return session;
       } else {
