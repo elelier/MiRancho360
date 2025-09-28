@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useReminders } from '../../hooks/useReminders';
 import Icon from './Icon';
 
 interface SideMenuProps {
@@ -43,6 +44,13 @@ const menuItems: MenuItem[] = [
     icon: <Icon name="farm-house" className="w-7 h-7 text-white" />
   },
   {
+    id: 'reminders',
+    label: 'Recordatorios',
+    path: '/recordatorios',
+    ariaLabel: 'Gestionar recordatorios de salud',
+    icon: <Icon name="bell" className="w-7 h-7 text-white" />
+  },
+  {
     id: 'reports',
     label: 'Reportes',
     path: '/reportes',
@@ -58,6 +66,7 @@ const menuItems: MenuItem[] = [
 export function SideMenu({ isOpen, onClose, currentPage }: SideMenuProps) {
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { stats } = useReminders();
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -106,6 +115,10 @@ export function SideMenu({ isOpen, onClose, currentPage }: SideMenuProps) {
             const isActive = currentPage === item.id || 
               (item.path === '/dashboard' && (currentPage === 'dashboard' || currentPage === undefined));
             
+            // Calcular contador de notificaciones para recordatorios
+            const showBadge = item.id === 'reminders' && (stats.vencidos > 0 || stats.hoy > 0);
+            const badgeCount = stats.vencidos + stats.hoy;
+            
             return (
               <button 
                 key={item.id}
@@ -115,14 +128,31 @@ export function SideMenu({ isOpen, onClose, currentPage }: SideMenuProps) {
                 }`}
                 aria-label={item.ariaLabel}
               >
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0 backdrop-blur-sm relative">
                   {item.icon}
+                  {showBadge && (
+                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center border-2 border-white shadow-lg">
+                      {badgeCount > 99 ? '99+' : badgeCount}
+                    </div>
+                  )}
                 </div>
-                <span className={`text-xl font-bold text-white drop-shadow-sm ${
-                  isActive ? 'text-white' : ''
-                }`}>
-                  {item.label}
-                </span>
+                <div className="flex-1 flex items-center justify-between">
+                  <span className={`text-xl font-bold text-white drop-shadow-sm ${
+                    isActive ? 'text-white' : ''
+                  }`}>
+                    {item.label}
+                  </span>
+                  {showBadge && (
+                    <div className="bg-red-500/20 text-white text-sm font-bold px-2 py-1 rounded-lg backdrop-blur-sm border border-red-400/30">
+                      {stats.vencidos > 0 && stats.hoy > 0 
+                        ? `${stats.vencidos} vencidos, ${stats.hoy} hoy`
+                        : stats.vencidos > 0 
+                        ? `${stats.vencidos} vencidos`
+                        : `${stats.hoy} para hoy`
+                      }
+                    </div>
+                  )}
+                </div>
               </button>
             );
           })}

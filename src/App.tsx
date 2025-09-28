@@ -5,6 +5,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { AnimalsListPage } from './pages/AnimalsListPage';
 import { AnimalFormPage } from './pages/AnimalFormPage';
 import { SitesPage } from './pages/SitesPage';
+import { RemindersPage } from './pages/RemindersPage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -133,18 +134,13 @@ function App() {
                 </ProtectedRoute>
               } 
             />
-            
-            {/* Rutas de sitios (por implementar) */}
+
+            {/* Rutas de recordatorios */}
             <Route 
-              path="/sitios" 
+              path="/recordatorios" 
               element={
                 <ProtectedRoute>
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                      <h1 className="text-2xl font-bold mb-4">🌳 Módulo de Sitios</h1>
-                      <p className="text-gray-600">Próximamente disponible</p>
-                    </div>
-                  </div>
+                  <RemindersPage />
                 </ProtectedRoute>
               } 
             />
