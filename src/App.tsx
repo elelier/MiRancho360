@@ -6,6 +6,7 @@ import { AnimalsListPage } from './pages/AnimalsListPage';
 import { AnimalFormPage } from './pages/AnimalFormPage';
 import { SitesPage } from './pages/SitesPage';
 import { RemindersPage } from './pages/RemindersPage';
+import { ReproductivePage } from './pages/ReproductivePage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -141,6 +142,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RemindersPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Rutas de reproducción */}
+            <Route 
+              path="/reproduccion" 
+              element={
+                <ProtectedRoute>
+                  <ReproductivePage />
                 </ProtectedRoute>
               } 
             />
