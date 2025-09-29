@@ -184,12 +184,12 @@ const Icon: React.FC<IconProps> = ({ name, className = "w-5 h-5" }) => {
       </svg>
     ),
     // Gender symbols
-    'male': (
+    'gender-male': (
       <svg className={className} fill="currentColor" viewBox="0 0 24 24">
         <path d="M15.41 7H14v2h1.41l-2.79 2.79C11.6 10.7 10.35 10 9 10c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5c0-1.35-.7-2.6-1.79-3.62L15 8.59V10h2V7h-1.59zM9 18c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
       </svg>
     ),
-    'female': (
+    'gender-female': (
       <svg className={className} fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 2C9.24 2 7 4.24 7 7c0 2.01 1.2 3.75 2.91 4.54v1.71h-2.5v2h2.5V17h2v-1.75h2.5v-2h-2.5v-1.71C16.8 10.75 18 9.01 18 7c0-2.76-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/>
       </svg>

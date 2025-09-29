@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
 import Icon from '../components/common/Icon';
 import { SideMenu } from '../components/common/SideMenu';
 import { useAnimals, useRazas } from '../hooks/useAnimals';
@@ -18,6 +17,7 @@ export function AnimalsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   // Hooks para datos
   const { animals, isLoading, error, reload } = useAnimals(filters);
@@ -60,6 +60,17 @@ export function AnimalsPage() {
       const months = ageInMonths % 12;
       return months > 0 ? `${years} años, ${months} meses` : `${years} años`;
     }
+  };
+
+  const getHealthStatus = (animal: any) => {
+    // Lógica simple para determinar el estado de salud
+    if (animal.estado_reproductivo === 'Preñada') {
+      return { text: 'Preñada', color: 'yellow' };
+    }
+    if (animal.estado_reproductivo === 'En Celo') {
+      return { text: 'En Celo', color: 'blue' };
+    }
+    return { text: 'Saludable', color: 'green' };
   };
 
   if (error) {

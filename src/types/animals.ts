@@ -18,6 +18,9 @@ export interface Animal {
   observaciones?: string; // Campo opcional - Notas
   estado: 'Activo' | 'Vendido' | 'Muerto'; // Estado del animal - Campo obligatorio
   activo: boolean; // Para compatibilidad con DB actual
+  estado_reproductivo?: string; // Estado reproductivo: 'disponible', 'preñada', 'en_celo', etc.
+  ultima_fecha_reproductiva?: string; // Última fecha de evento reproductivo
+  observaciones_reproductivas?: string; // Observaciones del estado reproductivo
   foto_url?: string; // URL de la foto principal (legacy - usar fotos[])
   fotos?: AnimalFoto[]; // Álbum de fotos del animal
   foto_principal?: AnimalFoto; // Foto principal para vista rápida

@@ -277,7 +277,7 @@ export const RemindersPage: React.FC = () => {
                 onChange={(e) => updateFiltros({ estado: e.target.value as 'todos' | 'pendiente' | 'completado' | 'vencido' })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                <option value="todos">Todos los estados</option>
+                <option value="todos">Todos</option>
                 <option value="vencido">Vencidos</option>
                 <option value="hoy">Para hoy</option>
                 <option value="pendiente">Pendientes</option>

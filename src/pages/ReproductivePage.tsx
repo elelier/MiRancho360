@@ -450,7 +450,7 @@ export function ReproductivePage() {
                 >
                   {selectedTab === 'montas' ? (
                     <>
-                      <option value="">Todos los estados</option>
+                      <option value="">Todos</option>
                       <option value="pendiente">Pendiente</option>
                       <option value="confirmada">Confirmada</option>
                       <option value="fallida">Fallida</option>
