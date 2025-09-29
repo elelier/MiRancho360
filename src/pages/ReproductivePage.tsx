@@ -92,8 +92,8 @@ export function ReproductivePage() {
       evento.hembra?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       evento.macho?.arete.toLowerCase().includes(searchQuery.toLowerCase()) ||
       evento.macho?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      evento.hembra?.raza?.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      evento.macho?.raza?.nombre.toLowerCase().includes(searchQuery.toLowerCase());
+      evento.hembra?.raza?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      evento.macho?.raza?.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesEstado = !filtroEstado || evento.estado_monta === filtroEstado;
     

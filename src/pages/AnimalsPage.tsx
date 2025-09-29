@@ -17,7 +17,6 @@ export function AnimalsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
 
   // Hooks para datos
   const { animals, isLoading, error, reload } = useAnimals(filters);
@@ -62,16 +61,7 @@ export function AnimalsPage() {
     }
   };
 
-  const getHealthStatus = (animal: any) => {
-    // Lógica simple para determinar el estado de salud
-    if (animal.estado_reproductivo === 'Preñada') {
-      return { text: 'Preñada', color: 'yellow' };
-    }
-    if (animal.estado_reproductivo === 'En Celo') {
-      return { text: 'En Celo', color: 'blue' };
-    }
-    return { text: 'Saludable', color: 'green' };
-  };
+
 
   if (error) {
     return (
@@ -144,12 +134,13 @@ export function AnimalsPage() {
           <div className="flex flex-col space-y-4 mt-6">
               <div className="flex flex-col lg:flex-row gap-4">
                 <div className="flex-1">
-                  <Input
-                    label="Buscar animales"
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Buscar animales</label>
+                  <input
+                    type="text"
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
                     placeholder="Buscar por arete, nombre o raza..."
-                    className="text-base lg:text-lg"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-base lg:text-lg"
                   />
                 </div>
                 <Button

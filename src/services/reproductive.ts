@@ -72,6 +72,7 @@ export const reproductiveService = {
         fechaConfirmacion.getTime() + (semanasRestantes * 7 * 24 * 60 * 60 * 1000)
       );
 
+      // Primero crear la preñez básica
       const { data: preñezData, error } = await supabase
         .from('preñeces')
         .insert({
@@ -86,16 +87,16 @@ export const reproductiveService = {
           tipo_registro: 'directo', // Marcar como registro directo
           // evento_monta_id queda NULL para registro directo
         })
-        .select(`
-          *,
-          hembra:animales!preñeces_hembra_id_fkey(arete, nombre, raza:razas(nombre)),
-          macho:animales!preñeces_macho_id_fkey(arete, nombre, raza:razas(nombre))
-        `)
+        .select('*')
         .single();
 
       if (error) {
         console.error('❌ Error creando preñez directa:', error);
         throw error;
+      }
+
+      if (!preñezData) {
+        throw new Error('No se pudo crear la preñez');
       }
 
       // Actualizar estado reproductivo del animal
