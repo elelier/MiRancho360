@@ -20,6 +20,7 @@ export function AnimalFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEditing = Boolean(id);
+  const headerTitle = isEditing ? 'Editar Animal' : 'Nuevo Animal';
   
   // Estados principales
   const [showMenu, setShowMenu] = useState(false);
@@ -48,6 +49,36 @@ export function AnimalFormPage() {
     estado: 'Activo',
     foto: null
   });
+
+  const renderHeader = () => (
+    <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <button
+          onClick={() => navigate('/animales')}
+          className="flex h-12 w-12 items-center justify-center rounded-full text-slate-900 hover:bg-gray-100 transition-colors"
+          aria-label="Volver a animales"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <h1 className="flex-1 text-center text-xl font-bold text-slate-900 truncate px-4">
+          {headerTitle}
+        </h1>
+
+        <button
+          onClick={() => setShowMenu(true)}
+          className="flex h-12 w-12 items-center justify-center rounded-full text-slate-900 hover:bg-gray-100 transition-colors"
+          aria-label="Abrir menú principal"
+        >
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+    </header>
+  );
 
   // Cargar datos del animal si estamos editando
   useEffect(() => {
@@ -160,75 +191,35 @@ export function AnimalFormPage() {
 
   if (loadingAnimal || loadingRazas || loadingSitios) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <button
-              onClick={() => navigate('/animales')}
-              className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors shadow-sm"
-              aria-label="Volver a animales"
-            >
-              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <h1 className="flex-1 text-center text-xl font-bold text-slate-900">Cargando...</h1>
-            <div className="flex w-12 justify-end" />
+      <div className="fixed inset-0 bg-background z-50 animate-slide-in-from-right overflow-y-auto">
+        {renderHeader()}
+        <SideMenu
+          isOpen={showMenu}
+          onClose={() => setShowMenu(false)}
+          currentPage="animals"
+        />
+        <div className="flex items-center justify-center py-24 px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-6 text-2xl text-gray-600">Cargando formulario...</p>
           </div>
-        </header>
-        
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary-600"></div>
-          <span className="ml-4 text-2xl text-gray-600">Cargando formulario...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <button
-            onClick={() => setShowMenu(!showMenu)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors shadow-sm"
-            aria-label="Abrir menú principal"
-          >
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <h1 className="flex-1 text-center text-xl font-bold text-slate-900">
-            {isEditing ? 'Editar Animal' : 'Nuevo Animal'}
-          </h1>
-          <div className="flex w-12 justify-end" />
-        </div>
-      </header>
+    <div className="fixed inset-0 bg-background z-50 animate-slide-in-from-right overflow-y-auto">
+      {renderHeader()}
 
       {/* Menu lateral */}
-      <SideMenu 
-        isOpen={showMenu} 
+      <SideMenu
+        isOpen={showMenu}
         onClose={() => setShowMenu(false)}
         currentPage="animals"
       />
 
-      <div className="p-6">
-        {/* Botón volver */}
-        <div className="mb-6">
-          <Button
-            variant="outline"
-            onClick={() => navigate('/animales')}
-            className="flex items-center space-x-2"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span>Volver a Animales</span>
-          </Button>
-        </div>
-
-        {/* Formulario */}
+      <div className="px-4 sm:px-6 lg:px-8 pb-24 pt-6">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200">
             {/* Header del formulario */}
