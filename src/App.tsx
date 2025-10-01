@@ -83,8 +83,8 @@ function App() {
             />
             
             {/* Rutas de animales - Usando rutas anidadas para Modal Route Pattern */}
-            <Route 
-              path="/animales" 
+            <Route
+              path="/animales"
               element={
                 <ProtectedRoute>
                   <AnimalsListPage />
@@ -92,31 +92,19 @@ function App() {
               }
             >
               {/* Ruta anidada: El perfil se renderiza SOBRE la lista */}
-              <Route 
-                path=":id" 
-                element={<AnimalProfilePage />} 
+              <Route
+                path=":id"
+                element={<AnimalProfilePage />}
+              />
+              <Route
+                path="nuevo"
+                element={<AnimalFormPage />}
+              />
+              <Route
+                path=":id/editar"
+                element={<AnimalFormPage />}
               />
             </Route>
-            
-            {/* Formulario crear animal - Ruta independiente */}
-            <Route 
-              path="/animales/nuevo" 
-              element={
-                <ProtectedRoute>
-                  <AnimalFormPage />
-                </ProtectedRoute>
-              } 
-            />
-            
-            {/* Formulario editar animal - Ruta independiente */}
-            <Route 
-              path="/animales/:id/editar" 
-              element={
-                <ProtectedRoute>
-                  <AnimalFormPage />
-                </ProtectedRoute>
-              } 
-            />
 
             {/* Rutas de sitios */}
             <Route 
