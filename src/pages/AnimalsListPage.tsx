@@ -58,6 +58,7 @@ export function AnimalsListPage() {
   const [showSearchInput, setShowSearchInput] = useState(true);
   const [showMenu, setShowMenu] = useState(false);
   const [showAllFilters, setShowAllFilters] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   
   // Auto-mostrar búsqueda si hay texto
   useEffect(() => {
@@ -82,6 +83,32 @@ export function AnimalsListPage() {
       setShowAllFilters(true);
     }
   }, [filters.raza, filters.estado, showAllFilters]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('visualViewport' in window)) {
+      return;
+    }
+
+    const viewport = window.visualViewport;
+    if (!viewport) {
+      return;
+    }
+
+    const handleViewportChange = () => {
+      const heightDifference = window.innerHeight - viewport.height;
+      setIsKeyboardVisible(heightDifference > 150);
+    };
+
+    viewport.addEventListener('resize', handleViewportChange);
+    viewport.addEventListener('scroll', handleViewportChange);
+
+    handleViewportChange();
+
+    return () => {
+      viewport.removeEventListener('resize', handleViewportChange);
+      viewport.removeEventListener('scroll', handleViewportChange);
+    };
+  }, []);
   
 
 
@@ -255,13 +282,15 @@ export function AnimalsListPage() {
         <div className="fixed top-16 left-0 right-0 z-30 p-4 bg-white border-b border-gray-100">
           <div className="relative flex w-full items-center">
             <Icon name="search" className="absolute left-4 w-5 h-5 text-slate-500" />
-            <input 
+            <input
               ref={searchInputRef}
-              className="w-full rounded-full border border-gray-200 bg-gray-50 py-3 pl-12 pr-10 text-base text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:bg-white focus:border-primary-300" 
-              placeholder="Buscar por arete, nombre, raza..." 
+              className="w-full rounded-full border border-gray-200 bg-gray-50 py-3 pl-12 pr-10 text-base text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:bg-white focus:border-primary-300"
+              placeholder="Buscar por arete, nombre, raza..."
               type="text"
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+              onFocus={() => setIsKeyboardVisible(true)}
+              onBlur={() => setIsKeyboardVisible(false)}
             />
             <button
               onClick={() => {
@@ -279,119 +308,123 @@ export function AnimalsListPage() {
       {/* Contenido principal con padding para header fijo */}
       <div className={`${showSearchInput ? 'pt-40' : 'pt-20'}`}>
         {/* Filtros desplegables modernos */}
-        <div className="px-4 pb-4 relative z-10">
-        {/* Filtros organizados verticalmente */}
-        <div className="space-y-3 mb-3">
-          {/* Filtro de Sitios/Lugares - Ancho completo, siempre visible */}
-          <div className="flex items-center gap-3">
-            <Icon name="home" className="w-5 h-5 text-gray-600 flex-shrink-0" />
-            <select
-              value={filters.sitio}
-              onChange={(e) => setFilters({ ...filters, sitio: e.target.value })}
-              className={`flex-1 rounded-xl px-4 py-3 text-base font-medium border-2 transition-colors ${
-                filters.sitio 
-                  ? 'bg-primary-100 text-primary-800 border-primary-300' 
-                  : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-              }`}
-            >
-              <option value="">Todas las Parcelas/Sitios</option>
-              {uniqueSitios.map(sitio => (
-                <option key={sitio} value={sitio}>{sitio}</option>
-              ))}
-            </select>
-          </div>
-          
-          {/* Filtros adicionales - Raza y Estado lado a lado cuando se activan */}
-          {showAllFilters && (
-            <div className="grid grid-cols-2 gap-3 animate-in slide-in-from-top duration-200">
-              {/* Filtro de Razas - Media anchura */}
-              <div className="flex items-center gap-2">
-                <Icon name="cow-large" className="w-4 h-4 text-gray-600 flex-shrink-0" />
+        {!isKeyboardVisible && (
+          <div className="px-4 pb-4 relative z-10">
+            {/* Filtros organizados verticalmente */}
+            <div className="space-y-3 mb-3">
+              {/* Filtro de Sitios/Lugares - Ancho completo, siempre visible */}
+              <div className="flex items-center gap-3">
+                <Icon name="home" className="w-5 h-5 text-gray-600 flex-shrink-0" />
                 <select
-                  value={filters.raza}
-                  onChange={(e) => setFilters({ ...filters, raza: e.target.value })}
-                  className={`flex-1 rounded-xl px-3 py-3 text-base font-medium border-2 transition-colors ${
-                    filters.raza 
-                      ? 'bg-primary-100 text-primary-800 border-primary-300' 
+                  value={filters.sitio}
+                  onChange={(e) => setFilters({ ...filters, sitio: e.target.value })}
+                  className={`flex-1 rounded-xl px-4 py-3 text-base font-medium border-2 transition-colors ${
+                    filters.sitio
+                      ? 'bg-primary-100 text-primary-800 border-primary-300'
                       : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
                   }`}
                 >
-                  <option value="">Todas las Razas</option>
-                  {uniqueRazas.map(raza => (
-                    <option key={raza} value={raza}>{raza}</option>
+                  <option value="">Todas las Parcelas/Sitios</option>
+                  {uniqueSitios.map(sitio => (
+                    <option key={sitio} value={sitio}>{sitio}</option>
                   ))}
                 </select>
               </div>
-              
-              {/* Filtro de Estado - Media anchura */}
-              <div className="flex items-center gap-2">
-                <Icon name="heart" className="w-4 h-4 text-gray-600 flex-shrink-0" />
-                <select
-                  value={filters.estado}
-                  onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
-                  className={`flex-1 rounded-xl px-3 py-3 text-base font-medium border-2 transition-colors ${
-                    filters.estado 
-                      ? 'bg-primary-100 text-primary-800 border-primary-300' 
-                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                  }`}
-                >
-                  <option value="">Todos</option>
-                  <option value="Disponible">Disponible</option>
-                  <option value="En Monta">En Monta</option>
-                  <option value="Preñada">Preñada</option>
-                  <option value="En Reposo">En Reposo</option>
-                  <option value="Vendido">Vendido</option>
-                  <option value="Fallecido">Fallecido</option>
-                </select>
-              </div>
+
+              {/* Filtros adicionales - Raza y Estado lado a lado cuando se activan */}
+              {showAllFilters && (
+                <div className="grid grid-cols-2 gap-3 animate-in slide-in-from-top duration-200">
+                  {/* Filtro de Razas - Media anchura */}
+                  <div className="flex items-center gap-2">
+                    <Icon name="cow-large" className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                    <select
+                      value={filters.raza}
+                      onChange={(e) => setFilters({ ...filters, raza: e.target.value })}
+                      className={`flex-1 rounded-xl px-3 py-3 text-base font-medium border-2 transition-colors ${
+                        filters.raza
+                          ? 'bg-primary-100 text-primary-800 border-primary-300'
+                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <option value="">Todas las Razas</option>
+                      {uniqueRazas.map(raza => (
+                        <option key={raza} value={raza}>{raza}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Filtro de Estado - Media anchura */}
+                  <div className="flex items-center gap-2">
+                    <Icon name="heart" className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                    <select
+                      value={filters.estado}
+                      onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
+                      className={`flex-1 rounded-xl px-3 py-3 text-base font-medium border-2 transition-colors ${
+                        filters.estado
+                          ? 'bg-primary-100 text-primary-800 border-primary-300'
+                          : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                      }`}
+                    >
+                      <option value="">Todos</option>
+                      <option value="Disponible">Disponible</option>
+                      <option value="En Monta">En Monta</option>
+                      <option value="Preñada">Preñada</option>
+                      <option value="En Reposo">En Reposo</option>
+                      <option value="Vendido">Vendido</option>
+                      <option value="Fallecido">Fallecido</option>
+                    </select>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        
-        {/* Botón limpiar filtros */}
-        {(filters.search || filters.sitio || filters.raza || filters.estado) && (
-          <button
-            onClick={() => {
-              setFilters({ search: '', sitio: '', raza: '', estado: '' });
-              setShowAllFilters(false);
-            }}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 px-4 py-3 text-lg font-medium transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-            <span>Limpiar Todos los Filtros</span>
-          </button>
+
+            {/* Botón limpiar filtros */}
+            {(filters.search || filters.sitio || filters.raza || filters.estado) && (
+              <button
+                onClick={() => {
+                  setFilters({ search: '', sitio: '', raza: '', estado: '' });
+                  setShowAllFilters(false);
+                }}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-100 text-red-700 hover:bg-red-200 px-4 py-3 text-lg font-medium transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Limpiar Todos los Filtros</span>
+              </button>
+            )}
+          </div>
         )}
-      </div>
 
       {/* Contador de resultados y ordenamiento */}
-      <div className="px-4 pb-4 flex items-center justify-between">
-        <p className="text-sm text-slate-600">
-          {sortedAndFilteredAnimals.length !== animals.length ? (
-            <>Mostrando {sortedAndFilteredAnimals.length} de {animals.length} animales</>
-          ) : (
-            <>Total: {animals.length} animales</>
-          )}
-        </p>
-        
-        {/* Dropdown de ordenamiento */}
-        <div className="flex items-center gap-2 text-sm">
-          <span className="text-slate-600 font-medium">Ordenar por:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="arete">Arete</option>
-            <option value="nombre">Nombre</option>
-            <option value="edad">Edad</option>
-            <option value="peso">Peso</option>
-            <option value="raza">Raza</option>
-            <option value="sitio">Sitio</option>
-          </select>
+      {!isKeyboardVisible && (
+        <div className="px-4 pb-4 flex items-center justify-between">
+          <p className="text-sm text-slate-600">
+            {sortedAndFilteredAnimals.length !== animals.length ? (
+              <>Mostrando {sortedAndFilteredAnimals.length} de {animals.length} animales</>
+            ) : (
+              <>Total: {animals.length} animales</>
+            )}
+          </p>
+
+          {/* Dropdown de ordenamiento */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-slate-600 font-medium">Ordenar por:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="arete">Arete</option>
+              <option value="nombre">Nombre</option>
+              <option value="edad">Edad</option>
+              <option value="peso">Peso</option>
+              <option value="raza">Raza</option>
+              <option value="sitio">Sitio</option>
+            </select>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Lista de animales estilo cards */}
       <div className="space-y-3 px-4 flex-1 pb-24">
