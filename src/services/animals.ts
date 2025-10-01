@@ -56,14 +56,27 @@ export const animalsService = {
       .select(`
         *,
         raza:razas(*),
-        sitio_actual:sitios(*),
-        padre:animales!animales_padre_id_fkey(arete, nombre),
-        madre:animales!animales_madre_id_fkey(arete, nombre)
+        sitio_actual:sitios(*)
       `)
       .eq('id', id)
       .single();
 
     if (error) throw error;
+    
+    // Si tiene padre_id o madre_id, cargarlos por separado
+    if (data && (data.padre_id || data.madre_id)) {
+      const parentIds = [data.padre_id, data.madre_id].filter(Boolean);
+      const { data: parents } = await supabase
+        .from('animales')
+        .select('id, arete, nombre')
+        .in('id', parentIds);
+      
+      if (parents) {
+        data.padre = parents.find(p => p.id === data.padre_id) || null;
+        data.madre = parents.find(p => p.id === data.madre_id) || null;
+      }
+    }
+    
     return data as Animal;
   },
 

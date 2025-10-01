@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Outlet } from 'react-router-dom';
 import { useAnimals } from '../hooks/useAnimals';
 import { useAuth } from '../hooks/useAuth';
 import { useReminders } from '../hooks/useReminders';
@@ -165,11 +165,6 @@ export function AnimalsListPage() {
   const paginatedAnimals = sortedAndFilteredAnimals;
 
   // Handlers para modals
-  const handleShowDetails = (animal: Animal) => {
-    setSelectedAnimal(animal);
-    setShowDetailsModal(true);
-  };
-
   const handleShowActions = (animal: Animal) => {
     setSelectedAnimal(animal);
     setShowActionsModal(true);
@@ -494,7 +489,7 @@ export function AnimalsListPage() {
                 <div 
                   key={animal.id}
                   className="flex cursor-pointer items-center gap-4 rounded-xl bg-white p-3 shadow-sm hover:shadow-md transition-shadow"
-                  onClick={() => handleShowDetails(animal)}
+                  onClick={() => navigate(`/animales/${animal.id}`)}
                 >
                   {/* Imagen del animal con badge de recordatorios */}
                   <div className="relative h-20 w-20 rounded-lg bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center overflow-hidden">
@@ -671,6 +666,9 @@ export function AnimalsListPage() {
         onClose={() => setShowMenu(false)}
         currentPage="animales"
       />
+
+      {/* Outlet para rutas anidadas (AnimalProfilePage) */}
+      <Outlet />
     </div>
   );
 }

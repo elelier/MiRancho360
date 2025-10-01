@@ -89,6 +89,20 @@ export default {
         // Bordes más suaves
         'xl': '16px',
         '2xl': '20px',
+      },
+      animation: {
+        'slide-in-from-right': 'slideInFromRight 300ms ease-out',
+        'slide-out-to-right': 'slideOutToRight 300ms ease-in',
+      },
+      keyframes: {
+        slideInFromRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        slideOutToRight: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(100%)' },
+        },
       }
     },
   },

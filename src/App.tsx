@@ -4,6 +4,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AnimalsListPage } from './pages/AnimalsListPage';
 import { AnimalFormPage } from './pages/AnimalFormPage';
+import { AnimalProfilePage } from './pages/AnimalProfilePage';
 import { SitesPage } from './pages/SitesPage';
 import { RemindersPage } from './pages/RemindersPage';
 import { ReproductivePage } from './pages/ReproductivePage';
@@ -81,17 +82,23 @@ function App() {
               } 
             />
             
-            {/* Rutas de animales */}
+            {/* Rutas de animales - Usando rutas anidadas para Modal Route Pattern */}
             <Route 
               path="/animales" 
               element={
                 <ProtectedRoute>
                   <AnimalsListPage />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              {/* Ruta anidada: El perfil se renderiza SOBRE la lista */}
+              <Route 
+                path=":id" 
+                element={<AnimalProfilePage />} 
+              />
+            </Route>
             
-            {/* Formulario crear animal */}
+            {/* Formulario crear animal - Ruta independiente */}
             <Route 
               path="/animales/nuevo" 
               element={
@@ -101,27 +108,12 @@ function App() {
               } 
             />
             
-            {/* Formulario editar animal */}
+            {/* Formulario editar animal - Ruta independiente */}
             <Route 
               path="/animales/:id/editar" 
               element={
                 <ProtectedRoute>
                   <AnimalFormPage />
-                </ProtectedRoute>
-              } 
-            />
-
-            {/* Vista detalle animal (pendiente de implementar) */}
-            <Route 
-              path="/animales/:id" 
-              element={
-                <ProtectedRoute>
-                  <div className="min-h-screen flex items-center justify-center">
-                    <div className="text-center">
-                      <h1 className="text-2xl font-bold mb-4">🐄 Vista Detalle Animal</h1>
-                      <p className="text-gray-600">Próximamente disponible</p>
-                    </div>
-                  </div>
                 </ProtectedRoute>
               } 
             />

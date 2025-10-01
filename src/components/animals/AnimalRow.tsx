@@ -1,14 +1,15 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Animal } from '../../types/animals';
 import Icon from '../common/Icon';
 
 interface AnimalRowProps {
   animal: Animal;
-  onShowDetails: () => void;
   onShowActions: () => void;
 }
 
-export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowProps) {
+export function AnimalRow({ animal, onShowActions }: AnimalRowProps) {
+  const navigate = useNavigate();
   const [swipeState, setSwipeState] = useState<'normal' | 'showing-details' | 'showing-actions'>('normal');
   const touchStartX = useRef(0);
   const touchStartY = useRef(0);
@@ -120,10 +121,10 @@ export function AnimalRow({ animal, onShowDetails, onShowActions }: AnimalRowPro
     isHorizontalSwipe.current = false;
   };
 
-  // Funciones para ejecutar acciones y regresar a normal
+  // Funciones para ejecutar acciones
   const handleDetailsClick = () => {
-    onShowDetails();
-    setSwipeState('normal');
+    // En lugar de abrir modal, navegamos a la ruta del perfil
+    navigate(`/animales/${animal.id}`);
   };
 
   const handleActionsClick = () => {

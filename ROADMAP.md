@@ -49,27 +49,48 @@
   - Probar conexión real con API
 
 ### 🔄 **EN DESARROLLO ACTIVO**
-- [ ] 🐄 **Módulo Animales - Swipe Gestures** (90% - Implementación completada)
+- [x] 🐄 **Módulo Animales - Swipe Gestures** (100% - ✅ COMPLETADO)
   - ✅ Wireframes completos con UX optimizada para 60+
   - ✅ Arquitectura de swipe gestures simplificada
   - ✅ AnimalsListPage con renglones altos (80px) y paleta Rancho Natural
   - ✅ AnimalRow con swipe táctil izquierda/derecha funcional
-  - ✅ Swipe izquierda → VER DETALLES modal (bg-primary-600)
+  - ✅ Swipe izquierda → VER DETALLES (navega a perfil completo)
   - ✅ Swipe derecha → ACCIONES modal (bg-accent-600)
-  - ✅ AnimalDetailsModal con información completa y botón EDITAR
-  - ✅ AnimalActionsModal con 7 opciones principales (botones 56px)
+  - ✅ **AnimalProfilePage - Ruta Modal de página completa** ⚡ NUEVO
+  - ✅ Navegación fluida sin pérdida de estado de lista
+  - ✅ Sistema de pestañas (Resumen, Salud, Reproducción)
+  - ✅ Animaciones slide-in-from-right tipo app nativa
   - ✅ MoveAnimalModal funcional para cambio de ubicación
+  - ✅ PhotoGalleryModal integrado en perfil
   - ✅ Filtros: búsqueda, sitio, raza con dropdowns grandes
   - ✅ Paginación responsive con botones grandes
   - ✅ Estados visuales por salud (verde/amarillo/rojo)
   - ✅ Integración completa con routing de React Router
   - ⏳ Integración con servicios Supabase (pendiente datos reales)
 
+### 🎉 **ÚLTIMOS LOGROS (30 Sep 2025)**
+- ✅ **Ruta Modal Pattern implementado** - Vista de perfil completa que mantiene estado de lista
+- ✅ **Rutas anidadas** - `/animales/:id` se renderiza sobre la lista sin desmontarla
+- ✅ **Animaciones CSS nativas** - Transiciones fluidas de 300ms
+- ✅ **UX Mejorada** - Navegación con botón atrás del navegador funciona perfectamente
+- ✅ **Documentación completa** - Ver `MODAL_ROUTE_IMPLEMENTATION.md`
+
 ### ❌ **PENDIENTE - PRÓXIMOS**
+- [ ] 📊 **Completar Pestañas de Perfil de Animal** (PRIORIDAD ALTA)
+  - [ ] Pestaña "Salud" con datos reales del hook useHealth
+  - [ ] Pestaña "Reproducción" con datos reales del hook useReproductive
+  - [ ] Botones de acción funcionales en cada pestaña
+  - [ ] Integración completa de modales (HealthEventModal, MatingEventModal, etc.)
+  
 - [ ] 🏠 **Módulo Sitios** (20% - Solo servicios)
   - Lista de sitios/corrales
   - Formulario crear/editar
   - Vista con conteo de animales
+
+- [ ] 🗑️ **Deprecar Código Antiguo**
+  - [ ] Marcar `AnimalDetailsModal` como obsoleto
+  - [ ] Migrar funcionalidad de `AnimalActionsModal` al perfil
+  - [ ] Mantener modales reutilizables (MoveAnimalModal, PhotoGalleryModal)
 
 ---
 
