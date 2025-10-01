@@ -161,21 +161,19 @@ export function AnimalFormPage() {
   if (loadingAnimal || loadingRazas || loadingSitios) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between p-6">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/animales')}
-                className="p-4 rounded-xl hover:bg-primary-50 transition-colors min-w-[60px] min-h-[60px] flex items-center justify-center"
-                aria-label="Volver a animales"
-              >
-                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-            </div>
-            <h1 className="text-2xl font-bold text-primary-800">Cargando...</h1>
-            <div className="w-16"></div>
+        <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <button
+              onClick={() => navigate('/animales')}
+              className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors shadow-sm"
+              aria-label="Volver a animales"
+            >
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h1 className="flex-1 text-center text-xl font-bold text-slate-900">Cargando...</h1>
+            <div className="flex w-12 justify-end" />
           </div>
         </header>
         
@@ -190,21 +188,21 @@ export function AnimalFormPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="flex items-center justify-between p-6">
-          <button 
+      <header className="sticky top-0 z-40 bg-white shadow-sm border-b border-gray-200">
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <button
             onClick={() => setShowMenu(!showMenu)}
-            className="p-4 rounded-xl hover:bg-primary-50 transition-colors min-w-[60px] min-h-[60px] flex items-center justify-center"
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-50 text-primary-700 hover:bg-primary-100 transition-colors shadow-sm"
             aria-label="Abrir menú principal"
           >
-            <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold text-primary-800">
+          <h1 className="flex-1 text-center text-xl font-bold text-slate-900">
             {isEditing ? 'Editar Animal' : 'Nuevo Animal'}
           </h1>
-          <div className="w-16"></div>
+          <div className="flex w-12 justify-end" />
         </div>
       </header>
 
