@@ -160,50 +160,54 @@ export function HealthEventModal({ animalId, animalArete, animalNombre, onClose,
   const tipoEventoActual = TIPOS_EVENTO.find(tipo => tipo.value === formData.tipo_evento);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-          <div className="flex items-center space-x-3">
-            <Icon name={tipoEventoActual?.icon || 'hospital'} className="w-8 h-8 text-primary-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Registrar Evento de Salud
-              </h2>
-              <p className="text-sm text-gray-600">
-                {animalArete}{animalNombre && ` - ${animalNombre}`}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-primary-100 flex items-center justify-center">
+              <Icon name={tipoEventoActual?.icon || 'hospital'} className="w-7 h-7 text-primary-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">Registrar evento de salud</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">
+                {animalArete}{animalNombre && ` · ${animalNombre}`}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-3xl font-bold p-2 hover:bg-white rounded-full transition-colors"
+            type="button"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            disabled={creatingEvent}
           >
-            ×
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {errors.general && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
-              <Icon name="x-circle" className="w-5 h-5 text-red-500" />
-              <span className="text-red-700">{errors.general}</span>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-8 space-y-6">
+            {errors.general && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <Icon name="x-circle" className="w-5 h-5 text-red-500 mt-1" />
+                <span className="text-sm text-red-700">{errors.general}</span>
+              </div>
+            )}
 
-          {/* Información básica */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-              <Icon name="notes" className="w-5 h-5" />
-              <span>Información Básica</span>
-            </h3>
+            {/* Información básica */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="notes" className="w-5 h-5 text-primary-600" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">Información básica</h3>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Tipo de evento */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Tipo de Evento *
-                </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tipo de evento */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tipo de Evento *
+                  </label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {TIPOS_EVENTO.map(tipo => (
                     <button
@@ -227,41 +231,42 @@ export function HealthEventModal({ animalId, animalArete, animalNombre, onClose,
               </div>
 
               {/* DEBUG: Test button */}
-              <div className="md:col-span-2">
-                <button
-                  type="button"
-                  onClick={async () => {
-                    console.log('🧪 TEST: Autenticando con Supabase y consultando productos');
-                    
-                    // 1. Intentar autenticar
-                    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-                      email: 'admin@rancho.com',
-                      password: 'admin123'
-                    });
-                    
-                    console.log('🔐 Resultado autenticación:', { authData, authError });
-                    
-                    // 2. Consultar sesión actual
-                    const { data: { session } } = await supabase.auth.getSession();
-                    console.log('📋 Sesión actual:', session?.user?.id || 'Sin sesión');
-                    
-                    // 3. Probar consulta de productos
-                    const { data, error } = await supabase
-                      .from('productos_salud')
-                      .select('*')
-                      .eq('activo', true);
-                    console.log('🧪 TEST Resultado productos:', { data, error });
-                  }}
-                  className="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  🧪 TEST: Login + Consultar productos
-                </button>
-              </div>
+                <div className="md:col-span-2">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      console.log('🧪 TEST: Autenticando con Supabase y consultando productos');
 
-              {/* Producto utilizado */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Producto Utilizado *
+                      // 1. Intentar autenticar
+                      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                        email: 'admin@rancho.com',
+                        password: 'admin123'
+                      });
+
+                      console.log('🔐 Resultado autenticación:', { authData, authError });
+
+                      // 2. Consultar sesión actual
+                      const { data: { session } } = await supabase.auth.getSession();
+                      console.log('📋 Sesión actual:', session?.user?.id || 'Sin sesión');
+
+                      // 3. Probar consulta de productos
+                      const { data, error } = await supabase
+                        .from('productos_salud')
+                        .select('*')
+                        .eq('activo', true);
+                      console.log('🧪 TEST Resultado productos:', { data, error });
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-blue-200 text-blue-600 hover:bg-blue-50 transition-colors text-sm"
+                  >
+                    <Icon name="beaker" className="w-4 h-4" />
+                    Prueba de conexión Supabase
+                  </button>
+                </div>
+
+                {/* Producto utilizado */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Producto Utilizado *
                 </label>
                 <div className="flex space-x-2">
                   <select
@@ -352,119 +357,118 @@ export function HealthEventModal({ animalId, animalArete, animalNombre, onClose,
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
-          </div>
+            </section>
 
-          {/* Recordatorio programado por el usuario */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-              <Icon name="bell" className="w-5 h-5" />
-              <span>Programar Recordatorio</span>
-            </h3>
-
-            <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="crear_recordatorio"
-                checked={formData.crear_recordatorio}
-                onChange={(e) => handleInputChange('crear_recordatorio', e.target.checked)}
-                className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-              />
-              <label htmlFor="crear_recordatorio" className="text-sm text-gray-700">
-                Crear recordatorio para refuerzo o seguimiento
-              </label>
-            </div>
-
-            {formData.crear_recordatorio && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-7">
-                <div>
-                  <Input
-                    type="number"
-                    label="Días para Refuerzo *"
-                    value={formData.dias_para_refuerzo || ''}
-                    onChange={(e) => handleInputChange('dias_para_refuerzo', Number(e.target.value))}
-                    placeholder="Ej: 30"
-                    error={errors.dias_para_refuerzo}
-                    min={1}
-                  />
+            {/* Recordatorio programado por el usuario */}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="bell" className="w-5 h-5 text-primary-600" />
                 </div>
-                <div>
-                  <Input
-                    label="Notas del Recordatorio"
-                    value={formData.notas_recordatorio || ''}
-                    onChange={(e) => handleInputChange('notas_recordatorio', e.target.value)}
-                    placeholder="Notas adicionales para el recordatorio"
-                  />
-                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">Programar recordatorio</h3>
               </div>
-            )}
-          </div>
 
-          {/* Campos avanzados (colapsables) */}
-          <div className="space-y-4">
-            <button
-              type="button"
-              onClick={() => setMostrarCamposAvanzados(!mostrarCamposAvanzados)}
-              className="flex items-center space-x-2 text-sm text-primary-600 hover:text-primary-700"
-            >
-              <Icon 
-                name={mostrarCamposAvanzados ? 'chevron-up' : 'chevron-down'} 
-                className="w-4 h-4" 
-              />
-              <span>Información Adicional (Opcional)</span>
-            </button>
-
-            {mostrarCamposAvanzados && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 border-l-2 border-gray-200">
-                <div>
-                  <Input
-                    type="number"
-                    label="Costo"
-                    value={formData.costo || ''}
-                    onChange={(e) => handleInputChange('costo', Number(e.target.value))}
-                    placeholder="0.00"
-                    step="0.01"
-                    min={0}
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    label="Proveedor"
-                    value={formData.proveedor || ''}
-                    onChange={(e) => handleInputChange('proveedor', e.target.value)}
-                    placeholder="Nombre del proveedor"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    label="Lote del Producto"
-                    value={formData.lote_producto || ''}
-                    onChange={(e) => handleInputChange('lote_producto', e.target.value)}
-                    placeholder="Número de lote"
-                  />
-                </div>
-
-                <div>
-                  <Input
-                    type="date"
-                    label="Fecha de Vencimiento"
-                    value={formData.fecha_vencimiento_producto || ''}
-                    onChange={(e) => handleInputChange('fecha_vencimiento_producto', e.target.value)}
-                    error={errors.fecha_vencimiento_producto}
-                  />
-                </div>
+              <div className="flex items-center space-x-3">
+                <input
+                  type="checkbox"
+                  id="crear_recordatorio"
+                  checked={formData.crear_recordatorio}
+                  onChange={(e) => handleInputChange('crear_recordatorio', e.target.checked)}
+                  className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                />
+                <label htmlFor="crear_recordatorio" className="text-sm text-gray-700">
+                  Crear recordatorio para refuerzo o seguimiento
+                </label>
               </div>
-            )}
+
+              {formData.crear_recordatorio && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                  <div>
+                    <Input
+                      type="number"
+                      label="Días para Refuerzo *"
+                      value={formData.dias_para_refuerzo || ''}
+                      onChange={(e) => handleInputChange('dias_para_refuerzo', Number(e.target.value))}
+                      placeholder="Ej: 30"
+                      error={errors.dias_para_refuerzo}
+                      min={1}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      label="Notas del Recordatorio"
+                      value={formData.notas_recordatorio || ''}
+                      onChange={(e) => handleInputChange('notas_recordatorio', e.target.value)}
+                      placeholder="Notas adicionales para el recordatorio"
+                    />
+                  </div>
+                </div>
+              )}
+            </section>
+
+            {/* Campos avanzados (colapsables) */}
+            <section className="space-y-4">
+              <button
+                type="button"
+                onClick={() => setMostrarCamposAvanzados(!mostrarCamposAvanzados)}
+                className="flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700"
+              >
+                <Icon name={mostrarCamposAvanzados ? 'chevron-up' : 'chevron-down'} className="w-4 h-4" />
+                <span>Información adicional (opcional)</span>
+              </button>
+
+              {mostrarCamposAvanzados && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6">
+                  <div>
+                    <Input
+                      type="number"
+                      label="Costo"
+                      value={formData.costo || ''}
+                      onChange={(e) => handleInputChange('costo', Number(e.target.value))}
+                      placeholder="0.00"
+                      step="0.01"
+                      min={0}
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      label="Proveedor"
+                      value={formData.proveedor || ''}
+                      onChange={(e) => handleInputChange('proveedor', e.target.value)}
+                      placeholder="Nombre del proveedor"
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      label="Lote del Producto"
+                      value={formData.lote_producto || ''}
+                      onChange={(e) => handleInputChange('lote_producto', e.target.value)}
+                      placeholder="Número de lote"
+                    />
+                  </div>
+
+                  <div>
+                    <Input
+                      type="date"
+                      label="Fecha de Vencimiento"
+                      value={formData.fecha_vencimiento_producto || ''}
+                      onChange={(e) => handleInputChange('fecha_vencimiento_producto', e.target.value)}
+                      error={errors.fecha_vencimiento_producto}
+                    />
+                  </div>
+                </div>
+              )}
+            </section>
           </div>
 
-          {/* Botones */}
-          <div className="flex space-x-4 pt-6 border-t border-gray-200">
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
-              className="flex-1"
+              className="w-full sm:w-auto sm:flex-1"
               disabled={creatingEvent}
             >
               Cancelar
@@ -472,11 +476,11 @@ export function HealthEventModal({ animalId, animalArete, animalNombre, onClose,
             <Button
               type="submit"
               variant="primary"
-              className="flex-1"
+              className="w-full sm:w-auto sm:flex-1"
               isLoading={creatingEvent}
               disabled={creatingEvent}
             >
-              {creatingEvent ? 'Guardando...' : 'Registrar Evento'}
+              {creatingEvent ? 'Guardando...' : 'Registrar evento'}
             </Button>
           </div>
         </form>

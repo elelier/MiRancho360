@@ -13,152 +13,182 @@ interface AnimalActionsModalProps {
   onPhoto: () => void;
 }
 
-export function AnimalActionsModal({ 
-  animal, 
-  onClose, 
-  onMove, 
-  onVaccination, 
-  onObservation, 
-  onMedical, 
-  onHistory, 
-  onWeighing, 
-  onPhoto 
+export function AnimalActionsModal({
+  animal,
+  onClose,
+  onMove,
+  onVaccination,
+  onObservation,
+  onMedical,
+  onHistory,
+  onWeighing,
+  onPhoto
 }: AnimalActionsModalProps) {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <Icon name="lightning-bolt" className="w-6 h-6 text-accent-600" />
-            <h2 className="text-xl font-bold text-gray-800">ACCIONES - #{animal.arete} {animal.nombre}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-2xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-accent-100 flex items-center justify-center flex-shrink-0">
+              <Icon name="lightning-bolt" className="w-6 h-6 text-accent-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Acciones rápidas</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">#{animal.arete} {animal.nombre}</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
           >
-            ×
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        {/* Animal Info */}
-        <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <div className="flex items-center space-x-2 mb-2">
-            <Icon name="cow-large" className="w-5 h-5 text-primary-600" />
-            <h3 className="font-semibold text-gray-800">ANIMAL SELECCIONADO</h3>
-          </div>
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
-            <p className="font-medium">#{animal.arete} {animal.nombre} | {animal.raza.nombre} | {animal.sexo}</p>
-            <div className="flex items-center space-x-2 text-sm text-gray-600 mt-1">
-              <Icon name="location" className="w-4 h-4" />
-              <span>{animal.sitio_actual?.nombre || 'Sin ubicación'} | Estado: Saludable</span>
-            </div>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-6">
+            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="cow-large" className="w-6 h-6 text-primary-600" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Animal seleccionado</h3>
+                  <p className="text-sm text-gray-600 truncate">
+                    #{animal.arete} {animal.nombre} · {animal.raza.nombre} · {animal.sexo}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <Icon name="location" className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{animal.sitio_actual?.nombre || 'Sin ubicación registrada'}</span>
+              </div>
+            </section>
+
+            <section>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-full bg-accent-100 flex items-center justify-center">
+                  <Icon name="sparkles" className="w-5 h-5 text-accent-600" />
+                </div>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-800 uppercase tracking-wide">Acciones disponibles</h3>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <button
+                  onClick={onMove}
+                  className="w-full rounded-2xl border-2 border-accent-200 bg-accent-50 hover:bg-accent-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-accent-200">
+                      <Icon name="home" className="w-6 h-6 text-accent-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Mover de lugar</p>
+                      <p className="text-sm text-gray-600">Cambiar el animal a otro sitio del rancho</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onObservation}
+                  className="w-full rounded-2xl border-2 border-green-200 bg-green-50 hover:bg-green-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-green-200">
+                      <Icon name="notes" className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Registrar observación</p>
+                      <p className="text-sm text-gray-600">Agregar nota sobre comportamiento o estado</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onWeighing}
+                  className="w-full rounded-2xl border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-purple-200">
+                      <Icon name="scale" className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Registrar peso</p>
+                      <p className="text-sm text-gray-600">Actualizar peso actual del animal</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onHistory}
+                  className="w-full rounded-2xl border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-blue-200">
+                      <Icon name="chart" className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Ver historial</p>
+                      <p className="text-sm text-gray-600">Consultar historial completo de movimientos y salud</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onVaccination}
+                  className="w-full rounded-2xl border-2 border-primary-200 bg-primary-50 hover:bg-primary-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-primary-200">
+                      <Icon name="syringe" className="w-6 h-6 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Registrar vacuna</p>
+                      <p className="text-sm text-gray-600">Aplicar vacuna y actualizar historial</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onPhoto}
+                  className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center border border-gray-200">
+                      <Icon name="camera" className="w-6 h-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Tomar foto</p>
+                      <p className="text-sm text-gray-600">Actualizar fotografía del animal</p>
+                    </div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={onMedical}
+                  className="w-full rounded-2xl border-2 border-red-200 bg-red-50 hover:bg-red-100 transition-colors text-left p-4 sm:p-5"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center border border-red-200">
+                      <Icon name="hospital" className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-base font-semibold text-gray-900">Atención médica</p>
+                      <p className="text-sm text-gray-600">Registrar consulta o tratamiento veterinario</p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </section>
           </div>
         </div>
 
-        {/* Actions - Reordenadas por prioridad de uso */}
-        <div className="p-4 space-y-3">
-          <div className="flex items-center space-x-2 mb-3">
-            <Icon name="lightning-bolt" className="w-5 h-5 text-accent-600" />
-            <h3 className="font-semibold text-gray-800">ACCIONES DISPONIBLES</h3>
-          </div>
-          
-          {/* 1. Mover de Lugar - Acción más común */}
+        <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex justify-end">
           <button
-            onClick={onMove}
-            className="w-full bg-accent-600 text-white p-4 rounded-lg hover:bg-accent-700 text-left"
+            onClick={onClose}
+            className="px-4 py-2 text-sm sm:text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <div className="flex items-center">
-              <Icon name="home" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">MOVER DE LUGAR</div>
-                <div className="text-sm opacity-90">Cambiar el animal a otro sitio del rancho</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 2. Registrar Observación - Segunda más común */}
-          <button
-            onClick={onObservation}
-            className="w-full bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="notes" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">REGISTRAR OBSERVACIÓN</div>
-                <div className="text-sm opacity-90">Agregar nota sobre comportamiento o estado</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 3. Registrar Peso - Tercera más común */}
-          <button
-            onClick={onWeighing}
-            className="w-full bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="scale" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">REGISTRAR PESO</div>
-                <div className="text-sm opacity-90">Actualizar peso actual del animal</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 4. Ver Historial - Consulta frecuente */}
-          <button
-            onClick={onHistory}
-            className="w-full bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="chart" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">VER HISTORIAL</div>
-                <div className="text-sm opacity-90">Consultar historial completo de movimientos y salud</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 5. Registrar Vacuna - Menos frecuente */}
-          <button
-            onClick={onVaccination}
-            className="w-full bg-primary-600 text-white p-4 rounded-lg hover:bg-primary-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="syringe" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">REGISTRAR VACUNA</div>
-                <div className="text-sm opacity-90">Aplicar vacuna y actualizar historial</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 6. Tomar Foto - Ocasional */}
-          <button
-            onClick={onPhoto}
-            className="w-full bg-gray-600 text-white p-4 rounded-lg hover:bg-gray-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="camera" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">TOMAR FOTO</div>
-                <div className="text-sm opacity-90">Actualizar fotografía del animal</div>
-              </div>
-            </div>
-          </button>
-
-          {/* 7. Atención Médica - Emergencias */}
-          <button
-            onClick={onMedical}
-            className="w-full bg-red-600 text-white p-4 rounded-lg hover:bg-red-700 text-left"
-          >
-            <div className="flex items-center">
-              <Icon name="hospital" className="w-6 h-6 mr-3" />
-              <div>
-                <div className="font-medium">ATENCIÓN MÉDICA</div>
-                <div className="text-sm opacity-90">Registrar consulta o tratamiento veterinario</div>
-              </div>
-            </div>
+            Cerrar
           </button>
         </div>
       </div>

@@ -127,270 +127,244 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-8 text-center space-y-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="text-gray-600">Cargando álbum...</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 sm:p-6 animate-fade-in">
+        <div className="w-full h-full sm:h-auto sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                <Icon name="camera" className="w-6 h-6 text-primary-600" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Cargando galería...</h2>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">#{animalArete}{animalNombre ? ` · ${animalNombre}` : ''}</p>
+              </div>
+            </div>
+            <button onClick={onClose} type="button" className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+              <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
+            </button>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center p-8">
+            <div className="flex flex-col items-center gap-3 text-gray-600">
+              <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+              <p className="text-sm">Consultando álbum...</p>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header del modal */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">📸</span>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Álbum de Fotos - {animalArete}
-              </h2>
-              <p className="text-sm text-gray-600">
-                {animalNombre && `${animalNombre} • `}
-                {album.total === 0 ? 'No hay fotos aún' : `${album.total} de 10 fotos`}
-              </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-5xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-primary-100 flex items-center justify-center">
+              <Icon name="camera" className="w-7 h-7 text-primary-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">Galería de fotos</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">#{animalArete}{animalNombre ? ` · ${animalNombre}` : ''}</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-3xl font-bold p-2 hover:bg-white rounded-full transition-colors"
-          >
-            ×
+          <button onClick={onClose} type="button" className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        {/* Contenido principal del modal */}
-        <div className="p-6">
-          {/* Mensaje de éxito */}
-          {uploadSuccess && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center space-x-3">
-              <span className="text-green-600 text-2xl">✅</span>
-              <div>
-                <p className="text-green-700 font-semibold">¡Foto agregada correctamente!</p>
-                <p className="text-green-600 text-sm">La imagen se ha añadido al álbum del animal</p>
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-8 space-y-6">
+            {uploadSuccess && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-2xl text-sm text-green-700 flex items-center gap-3">
+                <Icon name="check" className="w-5 h-5" />
+                Foto subida correctamente
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Grid de fotos del álbum */}
-          {album.fotos.length > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8">
-              {album.fotos.map((foto, index) => (
-                <div 
-                  key={foto.id} 
-                  className="relative group cursor-pointer"
-                  onClick={() => setSelectedPhoto(foto)}
-                >
-                  <div className="aspect-square rounded-lg overflow-hidden bg-gray-200 border-2 border-gray-300 group-hover:border-primary-500 transition-colors">
-                    <img
-                      src={foto.foto_url}
-                      alt={foto.descripcion || `Foto ${index + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
-                  </div>
-                  
-                  {/* Badges */}
-                  <div className="absolute top-2 left-2 space-y-1">
-                    {foto.es_principal && (
-                      <span className="bg-yellow-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        ⭐ Principal
-                      </span>
-                    )}
-                    <span className="bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded-full">
-                      {index + 1}
-                    </span>
-                  </div>
-
-                  {/* Overlay con acciones */}
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-200 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-medium">
-                        Ver detalle
-                      </button>
-                    </div>
-                  </div>
+            <section className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="text-left">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">Colección ({album.total}/10)</h3>
+                  <p className="text-sm text-gray-500">Gestiona las fotos del animal y selecciona una foto principal.</p>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* Estado vacío clickeable */}
-          {album.fotos.length === 0 && (
-            <div 
-              className="text-center py-16 bg-gradient-to-br from-gray-50 to-primary-50 rounded-xl mb-8 border-2 border-dashed border-primary-200 cursor-pointer hover:border-primary-400 hover:bg-gradient-to-br hover:from-primary-50 hover:to-accent-50 transition-all duration-200"
-              onClick={() => setShowUploadArea(true)}
-            >
-              <span className="text-8xl mb-6 block animate-pulse">📸</span>
-              <h3 className="text-2xl font-bold text-gray-700 mb-3">Álbum Vacío</h3>
-              <p className="text-gray-600 mb-4 max-w-md mx-auto">
-                Este animal aún no tiene fotos. 
-              </p>
-              <div className="inline-flex items-center space-x-2 px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold shadow-lg hover:bg-primary-600 transition-colors">
-                <span className="text-xl">📷</span>
-                <span>Toca aquí para agregar la primera foto</span>
-              </div>
-            </div>
-          )}
-
-          {/* Área para agregar nueva foto - Solo si hay menos de 10 */}
-          {album.total < 10 && album.fotos.length > 0 && (
-            <div className="border-t border-gray-200 pt-8">
-              {!showUploadArea ? (
-                <div className="text-center">
+                {album.total < 10 && (
                   <button
-                    onClick={() => setShowUploadArea(true)}
-                    className="inline-flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl hover:from-primary-600 hover:to-primary-700 transform hover:scale-105 transition-all duration-200"
+                    onClick={() => setShowUploadArea(!showUploadArea)}
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 text-white text-sm sm:text-base font-semibold hover:bg-primary-700 transition-colors"
                   >
-                    <Icon name="cow-large" className="w-6 h-6" />
-                    <span>Agregar Otra Foto</span>
-                    <span className="text-sm opacity-75">({album.total}/10)</span>
+                    <Icon name="plus" className="w-5 h-5" />
+                    {showUploadArea ? 'Cerrar carga' : 'Agregar foto'}
                   </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {/* Header con botón cerrar */}
+                )}
+              </div>
+
+              {showUploadArea && album.total < 10 && (
+                <div className="bg-primary-50 border border-primary-200 rounded-2xl p-5 space-y-4">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
-                      <span className="text-2xl">📸</span>
-                      <span>Nueva Foto</span>
-                    </h4>
-                    <button
-                      onClick={() => setShowUploadArea(false)}
-                      className="text-gray-400 hover:text-gray-600 text-2xl font-bold p-1"
-                    >
-                      ✕
-                    </button>
+                    <h4 className="text-sm font-semibold text-primary-700">Nueva fotografía</h4>
+                    <span className="text-xs text-primary-600">{album.total}/10 disponibles</span>
                   </div>
-                  
-                  {/* Componente de subida */}
-                  <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-xl p-6 border-2 border-dashed border-primary-200">
-                    <PhotoUpload
-                      label={uploadingPhoto ? "Subiendo foto..." : "Seleccionar foto o usar cámara"}
-                      value={null}
-                      onChange={handleAddPhoto}
-                    />
-                    {uploadingPhoto && (
-                      <div className="mt-4 flex items-center justify-center space-x-3 p-4 bg-white rounded-lg">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary-600"></div>
-                        <span className="text-gray-700 font-medium">Procesando y subiendo imagen...</span>
-                      </div>
-                    )}
-                  </div>
+                  <PhotoUpload
+                    label={uploadingPhoto ? 'Subiendo foto...' : 'Selecciona una foto o usa la cámara'}
+                    value={null}
+                    onChange={handleAddPhoto}
+                  />
+                  {uploadingPhoto && (
+                    <div className="flex items-center justify-center gap-3 text-primary-700 text-sm">
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+                      Procesando y subiendo imagen...
+                    </div>
+                  )}
                 </div>
               )}
-            </div>
-          )}
 
-          {/* Mensaje si alcanzó el límite */}
-          {album.total >= 10 && (
-            <div className="text-center py-8 bg-gradient-to-br from-accent-50 to-primary-50 rounded-xl border-2 border-accent-200 mt-6">
-              <span className="text-5xl mb-3 block">🏆</span>
-              <h3 className="text-lg font-bold text-gray-700 mb-2">Álbum Completo</h3>
-              <p className="text-gray-600 font-medium">
-                Este animal ya tiene el máximo de 10 fotos permitidas
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                Puedes eliminar fotos existentes para agregar nuevas
-              </p>
-            </div>
-          )}
+              {!loading && album.fotos.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {album.fotos.map((foto, index) => (
+                    <button
+                      key={foto.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedPhoto(foto);
+                        setNewDescription(foto.descripcion || '');
+                      }}
+                      className="group relative aspect-square overflow-hidden rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all"
+                    >
+                      <img
+                        src={foto.foto_url}
+                        alt={foto.descripcion || `Foto ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                      <div className="absolute top-2 left-2 flex items-center gap-2">
+                        {foto.es_principal && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500/90 text-white text-xs font-semibold">
+                            <Icon name="star" className="w-4 h-4" /> Principal
+                          </span>
+                        )}
+                        <span className="bg-black/60 text-white text-xs px-2 py-1 rounded-full">#{index + 1}</span>
+                      </div>
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/50 transition-colors">
+                        <span className="px-3 py-1.5 rounded-full bg-white/90 text-sm font-medium text-gray-800 opacity-0 group-hover:opacity-100 transition-opacity">
+                          Ver detalle
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {!loading && album.fotos.length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowUploadArea(true)}
+                  className="w-full text-center py-16 rounded-3xl border-2 border-dashed border-primary-200 bg-gradient-to-br from-gray-50 to-primary-50 hover:border-primary-300 hover:from-primary-50 hover:to-accent-50 transition-all"
+                >
+                  <span className="text-6xl mb-4 block">📸</span>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Álbum vacío</h3>
+                  <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
+                    Este animal aún no tiene fotografías. Agrega la primera para documentar su historial visual.
+                  </p>
+                  <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary-600 text-white text-sm font-semibold">
+                    <Icon name="plus" className="w-4 h-4" /> Subir foto
+                  </span>
+                </button>
+              )}
+
+              {album.total >= 10 && (
+                <div className="text-center py-8 bg-gradient-to-br from-accent-50 to-primary-50 rounded-2xl border border-primary-200">
+                  <span className="text-4xl block mb-2">🏆</span>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">Álbum completo</h3>
+                  <p className="text-sm text-gray-600">Has alcanzado el máximo de 10 fotografías. Elimina alguna para subir nuevas.</p>
+                </div>
+              )}
+            </section>
+          </div>
         </div>
 
-        {/* Modal de foto detallada */}
         {selectedPhoto && (
-          <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b">
-                <h4 className="text-lg font-bold">
-                  Foto {album.fotos.findIndex(f => f.id === selectedPhoto.id) + 1} de {album.total}
-                </h4>
-                <button
-                  onClick={() => setSelectedPhoto(null)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl"
-                >
-                  ×
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900">Foto {album.fotos.findIndex(f => f.id === selectedPhoto.id) + 1} de {album.total}</h4>
+                  {selectedPhoto.es_principal && (
+                    <p className="text-xs text-yellow-600 font-medium">Foto principal del animal</p>
+                  )}
+                </div>
+                <button onClick={() => setSelectedPhoto(null)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                  <Icon name="x-mark" className="w-5 h-5 text-gray-600" />
                 </button>
               </div>
 
-              {/* Imagen */}
-              <div className="p-4">
+              <div className="p-6 bg-gray-50">
                 <img
                   src={selectedPhoto.foto_url}
                   alt={selectedPhoto.descripcion || 'Foto del animal'}
-                  className="w-full max-h-96 object-contain rounded-lg"
+                  className="w-full max-h-[460px] object-contain rounded-2xl bg-white"
                 />
               </div>
 
-              {/* Información y acciones */}
-              <div className="p-4 border-t space-y-4">
-                {/* Descripción */}
+              <div className="p-6 space-y-5">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Descripción de la foto:
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Descripción</label>
                   {editingDescription === selectedPhoto.id ? (
-                    <div className="flex space-x-2">
+                    <div className="flex flex-col sm:flex-row gap-3">
                       <input
                         type="text"
                         value={newDescription}
                         onChange={(e) => setNewDescription(e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-lg"
-                        placeholder="Ej: Animal en pastoreo, Revisión veterinaria..."
+                        className="flex-1 px-4 py-2.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Ej: En pastoreo, revisión veterinaria..."
                       />
-                      <button
-                        onClick={() => handleUpdateDescription(selectedPhoto.id)}
-                        className="px-4 py-2 bg-primary-600 text-white rounded-lg"
-                      >
-                        Guardar
-                      </button>
-                      <button
-                        onClick={() => setEditingDescription(null)}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg"
-                      >
-                        Cancelar
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateDescription(selectedPhoto.id)}
+                          className="px-4 py-2.5 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 transition-colors"
+                        >
+                          Guardar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingDescription(null)}
+                          className="px-4 py-2.5 rounded-xl border border-gray-300 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
                     </div>
                   ) : (
-                    <div 
+                    <button
+                      type="button"
                       onClick={() => startEditDescription(selectedPhoto)}
-                      className="p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="w-full text-left px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm text-gray-600 hover:border-primary-300 hover:text-gray-800"
                     >
-                      {selectedPhoto.descripcion || (
-                        <span className="text-gray-500 italic">
-                          Clic aquí para agregar descripción...
-                        </span>
-                      )}
-                    </div>
+                      {selectedPhoto.descripcion || 'Haz clic para agregar una descripción'}
+                    </button>
                   )}
                 </div>
 
-                {/* Acciones */}
-                <div className="flex space-x-3">
+                <div className="flex flex-wrap gap-3">
                   {!selectedPhoto.es_principal && (
                     <button
+                      type="button"
                       onClick={() => handleSetPrincipal(selectedPhoto.id)}
-                      className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-yellow-500 text-white text-sm font-semibold hover:bg-yellow-600 transition-colors"
                     >
-                      ⭐ Marcar como Principal
+                      <Icon name="star" className="w-5 h-5" /> Marcar como principal
                     </button>
                   )}
                   <button
+                    type="button"
                     onClick={() => handleDeletePhoto(selectedPhoto.id)}
-                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-500 text-white text-sm font-semibold hover:bg-red-600 transition-colors"
                   >
-                    🗑️ Eliminar Foto
+                    <Icon name="trash" className="w-5 h-5" /> Eliminar foto
                   </button>
                 </div>
 
-                {/* Información de la foto */}
-                <div className="text-xs text-gray-500 pt-2 border-t">
+                <div className="text-xs text-gray-500 border-t border-gray-200 pt-3">
                   <p>Subida: {new Date(selectedPhoto.fecha_subida).toLocaleString('es-ES')}</p>
-                  {selectedPhoto.es_principal && (
-                    <p className="text-yellow-600 font-medium">⭐ Esta es la foto principal del animal</p>
-                  )}
                 </div>
               </div>
             </div>
