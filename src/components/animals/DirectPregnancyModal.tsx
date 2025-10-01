@@ -102,168 +102,177 @@ export function DirectPregnancyModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-2xl mx-auto shadow-xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <Icon name="star" className="w-8 h-8 text-primary-600" />
-            Registrar Preñez Directa
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-2xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+              <Icon name="star" className="w-6 h-6 text-primary-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Registrar preñez directa</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Flujo 2 · Registro sin evento de monta</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            type="button"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             disabled={isSubmitting}
           >
-            <Icon name="x" className="w-6 h-6" />
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-start space-x-3">
-            <Icon name="info" className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-blue-800 mb-1">Flujo 2: Registro Directo</h3>
-              <p className="text-sm text-blue-700">
-                Para animales ya preñados sin registro previo de monta. El sistema calculará la fecha de parto basándose en el tiempo de gestación actual.
-              </p>
-            </div>
+        <div className="bg-blue-50 border-b border-blue-100 px-4 sm:px-6 py-4">
+          <div className="flex items-start gap-3 text-sm text-blue-700">
+            <Icon name="info" className="w-5 h-5 text-blue-500 mt-0.5" />
+            <p>
+              Para animales ya preñados sin registro previo de monta. Calculamos la fecha estimada de parto según el tiempo de gestación actual.
+            </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Selección de Hembra */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Hembra Preñada <span className="text-red-500">*</span>
-            </label>
-            <select
-              value={hembraId}
-              onChange={(e) => setHembraId(e.target.value)}
-              className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              required
-            >
-              <option value="">Seleccionar hembra...</option>
-              {hembras.map(hembra => (
-                <option key={hembra.id} value={hembra.id}>
-                  {hembra.arete} {hembra.nombre ? `- ${hembra.nombre}` : ''} ({hembra.raza?.nombre})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Selección de Macho (Opcional) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Macho/Padre (opcional)
-            </label>
-            <select
-              value={machoId}
-              onChange={(e) => setMachoId(e.target.value)}
-              className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option value="">No especificado</option>
-              {machos.map(macho => (
-                <option key={macho.id} value={macho.id}>
-                  {macho.arete} {macho.nombre ? `- ${macho.nombre}` : ''} ({macho.raza?.nombre})
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Tiempo de Gestación */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tiempo de Gestación <span className="text-red-500">*</span>
-              </label>
-              <Input
-                type="number"
-                value={tiempoGestacion}
-                onChange={(e) => setTiempoGestacion(e.target.value ? Number(e.target.value) : '')}
-                placeholder="Ej: 6"
-                min="1"
-                max="10"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Unidad
-              </label>
-              <select
-                value={unidadTiempo}
-                onChange={(e) => setUnidadTiempo(e.target.value as 'semanas' | 'meses')}
-                className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="meses">Meses</option>
-                <option value="semanas">Semanas</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Fecha de Confirmación */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Fecha de Confirmación <span className="text-red-500">*</span>
-            </label>
-            <Input
-              type="date"
-              value={fechaConfirmacion}
-              onChange={(e) => setFechaConfirmacion(e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
-              required
-            />
-          </div>
-
-          {/* Fecha de Parto Estimada (Calculada) */}
-          {fechaPartoEstimada && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center space-x-2 mb-2">
-                <Icon name="calendar" className="w-5 h-5 text-green-600" />
-                <h4 className="font-medium text-green-800">Fecha de Parto Estimada</h4>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-6">
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="cow" className="w-5 h-5 text-primary-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-800">Animales</h3>
               </div>
-              <p className="text-green-700 font-semibold">
-                {formatDate(fechaPartoEstimada)}
-              </p>
-              <p className="text-sm text-green-600 mt-1">
-                Calculada automáticamente basándose en el tiempo de gestación ingresado
-              </p>
-            </div>
-          )}
 
-          {/* Observaciones */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Observaciones (opcional)
-            </label>
-            <textarea
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              placeholder="Método de confirmación, veterinario que confirmó, etc."
-              rows={3}
-              className="w-full px-4 py-3 text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-            />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hembra preñada <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={hembraId}
+                    onChange={(e) => setHembraId(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                    required
+                  >
+                    <option value="">Seleccionar hembra...</option>
+                    {hembras.map((hembra) => (
+                      <option key={hembra.id} value={hembra.id}>
+                        {hembra.arete} {hembra.nombre ? `- ${hembra.nombre}` : ''} ({hembra.raza?.nombre})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Macho/Padre (opcional)</label>
+                  <select
+                    value={machoId}
+                    onChange={(e) => setMachoId(e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                  >
+                    <option value="">No especificado</option>
+                    {machos.map((macho) => (
+                      <option key={macho.id} value={macho.id}>
+                        {macho.arete} {macho.nombre ? `- ${macho.nombre}` : ''} ({macho.raza?.nombre})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="clock" className="w-5 h-5 text-primary-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-800">Gestación</h3>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tiempo de gestación <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="number"
+                    value={tiempoGestacion}
+                    onChange={(e) => setTiempoGestacion(e.target.value ? Number(e.target.value) : '')}
+                    placeholder="Ej: 6"
+                    min="1"
+                    max="10"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Unidad</label>
+                  <select
+                    value={unidadTiempo}
+                    onChange={(e) => setUnidadTiempo(e.target.value as 'semanas' | 'meses')}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                  >
+                    <option value="meses">Meses</option>
+                    <option value="semanas">Semanas</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fecha de confirmación <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  type="date"
+                  value={fechaConfirmacion}
+                  onChange={(e) => setFechaConfirmacion(e.target.value)}
+                  max={new Date().toISOString().split('T')[0]}
+                  required
+                />
+              </div>
+
+              {fechaPartoEstimada && (
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 sm:p-5">
+                  <div className="flex items-start gap-3">
+                    <Icon name="calendar" className="w-5 h-5 text-green-600 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-green-700">Fecha estimada de parto</p>
+                      <p className="text-sm text-green-600">{formatDate(fechaPartoEstimada)}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <section className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">Observaciones (opcional)</label>
+              <textarea
+                value={observaciones}
+                onChange={(e) => setObservaciones(e.target.value)}
+                rows={4}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                placeholder="Notas adicionales o indicaciones del veterinario"
+              />
+            </section>
           </div>
 
-          {/* Botones */}
-          <div className="flex space-x-4 pt-4">
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
-              fullWidth
               disabled={isSubmitting}
+              className="w-full sm:w-auto sm:flex-1"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               variant="primary"
-              fullWidth
+              disabled={isSubmitting}
               isLoading={isSubmitting}
-              disabled={isSubmitting || !hembraId || !tiempoGestacion || !fechaConfirmacion}
+              className="w-full sm:w-auto sm:flex-1"
             >
-              {isSubmitting ? 'Registrando...' : 'Registrar Preñez'}
+              {isSubmitting ? 'Guardando...' : 'Registrar preñez'}
             </Button>
           </div>
         </form>

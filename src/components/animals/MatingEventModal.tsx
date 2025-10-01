@@ -149,195 +149,170 @@ export function MatingEventModal({ onClose, onEventCreated }: MatingEventModalPr
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-accent-50">
-          <div className="flex items-center space-x-3">
-            <Icon name="heart" className="w-8 h-8 text-primary-600" />
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                Registrar Evento de Monta
-              </h2>
-              <p className="text-sm text-gray-600">
-                Programa el ciclo reproductivo de tus animales
-              </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-3xl bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-8 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-12 h-12 rounded-2xl bg-primary-100 flex items-center justify-center">
+              <Icon name="heart" className="w-7 h-7 text-primary-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">Registrar evento de monta</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Programa el ciclo reproductivo de tus animales</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-3xl font-bold p-2 hover:bg-white rounded-full transition-colors"
+            type="button"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            disabled={creatingEvent}
           >
-            ×
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {errors.general && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-3">
-              <Icon name="x-circle" className="w-5 h-5 text-red-500" />
-              <span className="text-red-700">{errors.general}</span>
-            </div>
-          )}
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-8 space-y-6">
+            {errors.general && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <Icon name="x-circle" className="w-5 h-5 text-red-500 mt-1" />
+                <span className="text-sm text-red-700">{errors.general}</span>
+              </div>
+            )}
 
-          {/* Selección de animales */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-              <Icon name="heart" className="w-5 h-5" />
-              <span>Animales Reproductores</span>
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Hembra */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  🚺 Hembra *
-                </label>
-                <select
-                  value={formData.hembra_id}
-                  onChange={(e) => handleInputChange('hembra_id', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="">Seleccionar hembra...</option>
-                  {hembras.map(hembra => (
-                    <option key={hembra.id} value={hembra.id}>
-                      {getAnimalDisplay(hembra)}
-                    </option>
-                  ))}
-                </select>
-                {errors.hembra_id && (
-                  <p className="text-red-500 text-sm mt-1">{errors.hembra_id}</p>
-                )}
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="users" className="w-5 h-5 text-primary-600" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">Animales reproductores</h3>
               </div>
 
-              {/* Macho */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  🚹 Macho *
-                </label>
-                <select
-                  value={formData.macho_id}
-                  onChange={(e) => handleInputChange('macho_id', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                >
-                  <option value="">Seleccionar macho...</option>
-                  {machos.map(macho => (
-                    <option key={macho.id} value={macho.id}>
-                      {getAnimalDisplay(macho)}
-                    </option>
-                  ))}
-                </select>
-                {errors.macho_id && (
-                  <p className="text-red-500 text-sm mt-1">{errors.macho_id}</p>
-                )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Hembra *</label>
+                  <select
+                    value={formData.hembra_id}
+                    onChange={(e) => handleInputChange('hembra_id', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                  >
+                    <option value="">Seleccionar hembra...</option>
+                    {hembras.map((hembra) => (
+                      <option key={hembra.id} value={hembra.id}>
+                        {getAnimalDisplay(hembra)}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.hembra_id && <p className="text-red-500 text-sm mt-1">{errors.hembra_id}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Macho *</label>
+                  <select
+                    value={formData.macho_id}
+                    onChange={(e) => handleInputChange('macho_id', e.target.value)}
+                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                  >
+                    <option value="">Seleccionar macho...</option>
+                    {machos.map((macho) => (
+                      <option key={macho.id} value={macho.id}>
+                        {getAnimalDisplay(macho)}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.macho_id && <p className="text-red-500 text-sm mt-1">{errors.macho_id}</p>}
+                </div>
               </div>
-            </div>
-          </div>
+            </section>
 
-          {/* Detalles del evento */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-              <Icon name="calendar" className="w-5 h-5" />
-              <span>Detalles del Evento</span>
-            </h3>
+            <section className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                  <Icon name="calendar" className="w-5 h-5 text-primary-600" />
+                </div>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800">Detalles del evento</h3>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Fecha de monta */}
-              <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   type="date"
-                  label="Fecha de Monta *"
+                  label="Fecha de monta *"
                   value={formData.fecha_monta}
                   onChange={(e) => handleInputChange('fecha_monta', e.target.value)}
                   error={errors.fecha_monta}
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Método de monta</label>
+                  <div className="space-y-2">
+                    {METODOS_MONTA.map((metodo) => (
+                      <label key={metodo.value} className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-primary-300 transition-colors cursor-pointer">
+                        <input
+                          type="radio"
+                          name="metodo_monta"
+                          value={metodo.value}
+                          checked={formData.metodo_monta === metodo.value}
+                          onChange={(e) => handleInputChange('metodo_monta', e.target.value)}
+                          className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
+                        />
+                        <Icon name={metodo.icon} className="w-5 h-5 text-primary-500" />
+                        <span className="text-sm text-gray-700">{metodo.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
 
-              {/* Método de monta */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Método de Monta
-                </label>
-                <div className="space-y-2">
-                  {METODOS_MONTA.map(metodo => (
-                    <label key={metodo.value} className="flex items-center space-x-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="metodo_monta"
-                        value={metodo.value}
-                        checked={formData.metodo_monta === metodo.value}
-                        onChange={(e) => handleInputChange('metodo_monta', e.target.value)}
-                        className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
-                      />
-                      <Icon name={metodo.icon} className="w-4 h-4 text-gray-500" />
-                      <span className="text-gray-700">{metodo.label}</span>
-                    </label>
-                  ))}
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+                <textarea
+                  value={formData.observaciones || ''}
+                  onChange={(e) => handleInputChange('observaciones', e.target.value)}
+                  placeholder="Observaciones adicionales sobre la monta..."
+                  rows={3}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm sm:text-base"
+                />
               </div>
-            </div>
+            </section>
 
-            {/* Observaciones */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Observaciones
-              </label>
-              <textarea
-                value={formData.observaciones || ''}
-                onChange={(e) => handleInputChange('observaciones', e.target.value)}
-                placeholder="Observaciones adicionales sobre la monta..."
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
-          </div>
-
-          {/* Fechas calculadas */}
-          {fechasCalculadas && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                <Icon name="calendar" className="w-5 h-5" />
-                <span>Fechas Calculadas Automáticamente</span>
-              </h3>
-
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-center space-x-3">
-                  <Icon name="clock" className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-blue-800">Confirmar Preñez</p>
-                    <p className="text-sm text-blue-600">
-                      {formatearFecha(fechasCalculadas.fechaConfirmacion)} (+45 días)
-                    </p>
+            {fechasCalculadas && (
+              <section className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-full bg-primary-100 flex items-center justify-center">
+                    <Icon name="clock" className="w-5 h-5 text-primary-600" />
                   </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <Icon name="star" className="w-5 h-5 text-blue-600" />
-                  <div>
-                    <p className="font-medium text-blue-800">Parto Estimado</p>
-                    <p className="text-sm text-blue-600">
-                      {formatearFecha(fechasCalculadas.fechaParto)} (+283 días)
-                    </p>
-                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">Fechas calculadas automáticamente</h3>
                 </div>
 
-                <div className="mt-3 p-3 bg-blue-100 rounded-lg">
-                  <p className="text-xs text-blue-700">
-                    💡 Estas fechas se calcularán automáticamente y se crearán recordatorios 
-                    para ayudarte a hacer seguimiento del ciclo reproductivo.
+                <div className="bg-primary-50 border border-primary-200 rounded-2xl p-4 sm:p-5 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <Icon name="shield-check" className="w-5 h-5 text-primary-600 mt-1" />
+                    <div>
+                      <p className="font-semibold text-gray-800">Confirmar preñez</p>
+                      <p className="text-sm text-gray-600">{formatearFecha(fechasCalculadas.fechaConfirmacion)} (+45 días)</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <Icon name="sparkles" className="w-5 h-5 text-primary-600 mt-1" />
+                    <div>
+                      <p className="font-semibold text-gray-800">Parto estimado</p>
+                      <p className="text-sm text-gray-600">{formatearFecha(fechasCalculadas.fechaParto)} (+283 días)</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-primary-600 bg-white/70 rounded-xl px-3 py-2">
+                    Estas fechas se generan automáticamente para ayudarte a dar seguimiento al ciclo reproductivo.
                   </p>
                 </div>
-              </div>
-            </div>
-          )}
+              </section>
+            )}
+          </div>
 
-          {/* Botones */}
-          <div className="flex space-x-4 pt-6 border-t border-gray-200">
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-8 py-4 flex flex-col sm:flex-row gap-3 sm:gap-4">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
-              className="flex-1"
+              className="w-full sm:w-auto sm:flex-1"
               disabled={creatingEvent}
             >
               Cancelar
@@ -345,11 +320,11 @@ export function MatingEventModal({ onClose, onEventCreated }: MatingEventModalPr
             <Button
               type="submit"
               variant="primary"
-              className="flex-1"
+              className="w-full sm:w-auto sm:flex-1"
               isLoading={creatingEvent}
               disabled={creatingEvent}
             >
-              {creatingEvent ? 'Registrando...' : 'Registrar Monta'}
+              {creatingEvent ? 'Registrando...' : 'Registrar monta'}
             </Button>
           </div>
         </form>

@@ -52,110 +52,111 @@ export function PregnancyConfirmationModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl p-8 w-full max-w-md mx-auto shadow-xl">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
-            <Icon name="cow" className="w-8 h-8 text-primary-600" />
-            Confirmar Preñez
-          </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-0 sm:p-6 animate-fade-in">
+      <div className="w-full h-full sm:h-auto sm:max-w-lg bg-white sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-slide-in-from-bottom">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+              <Icon name="cow" className="w-6 h-6 text-primary-600" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 truncate">Confirmar preñez</h2>
+              <p className="text-xs sm:text-sm text-gray-500 truncate">Evento #{evento.id}</p>
+            </div>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            type="button"
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
             disabled={isSubmitting}
           >
-            <Icon name="x" className="w-6 h-6" />
+            <Icon name="x-mark" className="w-6 h-6 text-gray-600" />
           </button>
         </div>
 
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold text-gray-900 mb-2">Detalles del Evento</h3>
-          <div className="space-y-1 text-sm text-gray-600">
-            <p><strong>Fecha de Monta:</strong> {formatDate(evento.fecha_monta)}</p>
-            <p><strong>Método:</strong> {evento.metodo_monta === 'natural' ? 'Monta Natural' : 'Inseminación Artificial'}</p>
-            <p><strong>Confirmación esperada:</strong> {formatDate(evento.fecha_confirmacion_prenez || '')}</p>
-            {evento.observaciones && (
-              <p><strong>Observaciones:</strong> {evento.observaciones}</p>
-            )}
-          </div>
-        </div>
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+          <div className="p-4 sm:p-6 space-y-6">
+            <section className="bg-gray-50 border border-gray-200 rounded-2xl p-4 sm:p-5 space-y-2">
+              <h3 className="text-sm font-semibold text-gray-800">Detalles del evento</h3>
+              <p className="text-sm text-gray-600"><strong>Fecha de monta:</strong> {formatDate(evento.fecha_monta)}</p>
+              <p className="text-sm text-gray-600"><strong>Método:</strong> {evento.metodo_monta === 'natural' ? 'Monta Natural' : 'Inseminación Artificial'}</p>
+              <p className="text-sm text-gray-600"><strong>Confirmación esperada:</strong> {formatDate(evento.fecha_confirmacion_prenez || '')}</p>
+              {evento.observaciones && (
+                <p className="text-sm text-gray-600"><strong>Observaciones:</strong> {evento.observaciones}</p>
+              )}
+            </section>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              ¿El animal está preñado?
-            </label>
-            <div className="space-y-3">
-              <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-green-50 transition-colors">
-                <input
-                  type="radio"
-                  value="true"
-                  checked={isPregnant === true}
-                  onChange={(e) => setIsPregnant(e.target.value === 'true')}
-                  className="w-4 h-4 text-green-600 focus:ring-green-500 border-gray-300"
-                />
-                <span className="ml-3 flex items-center gap-2">
-                  <Icon name="check-circle" className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-green-800">Sí, está preñada</span>
-                </span>
-              </label>
-              
-              <label className="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-red-50 transition-colors">
-                <input
-                  type="radio"
-                  value="false"
-                  checked={isPregnant === false}
-                  onChange={(e) => setIsPregnant(e.target.value === 'true')}
-                  className="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300"
-                />
-                <span className="ml-3 flex items-center gap-2">
-                  <Icon name="x-circle" className="w-5 h-5 text-red-600" />
-                  <span className="font-medium text-red-800">No, no está preñada</span>
-                </span>
-              </label>
-            </div>
-          </div>
+            <section className="space-y-3">
+              <label className="block text-sm font-medium text-gray-700">¿El animal está preñado?</label>
+              <div className="space-y-3">
+                <label className={`flex items-center p-4 rounded-2xl border-2 transition-colors cursor-pointer ${isPregnant === true ? 'border-green-400 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                  <input
+                    type="radio"
+                    value="true"
+                    checked={isPregnant === true}
+                    onChange={(e) => setIsPregnant(e.target.value === 'true')}
+                    className="w-4 h-4 text-green-600 focus:ring-green-500 border-gray-300"
+                  />
+                  <span className="ml-3 flex items-center gap-2">
+                    <Icon name="check-circle" className="w-5 h-5 text-green-600" />
+                    <span className="font-medium text-green-800">Sí, está preñada</span>
+                  </span>
+                </label>
 
-          {/* Mensaje de éxito para preñez confirmada */}
-          {showSuccessMessage && isPregnant && (
-            <div className="border border-green-200 rounded-lg p-4 bg-green-50">
-              <div className="flex items-center space-x-2 text-green-800 mb-2">
-                <Icon name="check-circle" className="w-5 h-5" />
-                <span className="font-medium">¡Preñez confirmada exitosamente!</span>
+                <label className={`flex items-center p-4 rounded-2xl border-2 transition-colors cursor-pointer ${isPregnant === false ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-red-300'}`}>
+                  <input
+                    type="radio"
+                    value="false"
+                    checked={isPregnant === false}
+                    onChange={(e) => setIsPregnant(e.target.value === 'true')}
+                    className="w-4 h-4 text-red-600 focus:ring-red-500 border-gray-300"
+                  />
+                  <span className="ml-3 flex items-center gap-2">
+                    <Icon name="x-circle" className="w-5 h-5 text-red-600" />
+                    <span className="font-medium text-red-800">No, no está preñada</span>
+                  </span>
+                </label>
               </div>
-              <p className="text-sm text-green-700">
-                La hembra ha sido marcada como preñada. Puedes registrar la cría cuando nazca desde la página de Animales.
-              </p>
-            </div>
-          )}
+            </section>
 
-          <div>
-            <label className="block text-lg font-medium text-gray-700 mb-2">
-              Observaciones (opcional)
-            </label>
-            <textarea
-              value={observaciones}
-              onChange={(e) => setObservaciones(e.target.value)}
-              placeholder="Detalles del examen, método de confirmación, etc."
-              rows={3}
-              className="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-            />
+            {showSuccessMessage && isPregnant && (
+              <div className="border border-green-200 rounded-2xl p-4 bg-green-50 space-y-2">
+                <div className="flex items-center gap-2 text-green-700 font-medium">
+                  <Icon name="check-circle" className="w-5 h-5" />
+                  ¡Preñez confirmada exitosamente!
+                </div>
+                <p className="text-xs text-green-700">
+                  La hembra ha sido marcada como preñada. Podrás registrar la cría cuando nazca desde la página de animales.
+                </p>
+              </div>
+            )}
+
+            <section className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Observaciones (opcional)</label>
+              <textarea
+                value={observaciones}
+                onChange={(e) => setObservaciones(e.target.value)}
+                placeholder="Detalles del examen, método de confirmación, etc."
+                rows={4}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+              />
+            </section>
           </div>
 
-          <div className="flex space-x-4 pt-4">
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
               variant="secondary"
               onClick={onClose}
-              fullWidth
               disabled={isSubmitting}
+              className="w-full sm:w-auto sm:flex-1"
             >
               Cancelar
             </Button>
             <Button
               type="submit"
               disabled={isPregnant === null || isSubmitting}
-              fullWidth
+              className="w-full sm:w-auto sm:flex-1"
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">
@@ -163,7 +164,7 @@ export function PregnancyConfirmationModal({
                   Confirmando...
                 </div>
               ) : (
-                'Confirmar Resultado'
+                'Confirmar resultado'
               )}
             </Button>
           </div>
