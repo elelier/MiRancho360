@@ -25,10 +25,57 @@ export function useAnimals(filters?: AnimalFilters) {
     loadAnimals();
   }, [loadAnimals]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleAnimalUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ animalId: string; animal: Partial<Animal> }>;
+      const detail = customEvent.detail;
+      if (!detail?.animalId || !detail.animal) {
+        return;
+      }
+
+      setAnimals(prev => prev.map(current => {
+        if (current.id !== detail.animalId) {
+          return current;
+        }
+
+        const next = { ...current } as Record<string, unknown>;
+
+        Object.entries(detail.animal).forEach(([key, value]) => {
+          if (value === undefined) {
+            delete next[key];
+          } else {
+            next[key] = value;
+          }
+        });
+
+        return next as Animal;
+      }));
+    };
+
+    window.addEventListener('animal-data-updated', handleAnimalUpdated);
+    return () => window.removeEventListener('animal-data-updated', handleAnimalUpdated);
+  }, []);
+
+  const emitAnimalUpdated = useCallback((animalToEmit: Animal) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.dispatchEvent(new CustomEvent('animal-data-updated', {
+      detail: { animalId: animalToEmit.id, animal: animalToEmit }
+    }));
+  }, []);
+
+
   const createAnimal = async (animalData: AnimalFormData, usuarioId: string) => {
     try {
       const newAnimal = await animalsService.createAnimal(animalData, usuarioId);
       setAnimals(prev => [newAnimal, ...prev]);
+      emitAnimalUpdated(newAnimal);
       return newAnimal;
     } catch (err) {
       console.error('Error al crear animal:', err);
@@ -39,8 +86,24 @@ export function useAnimals(filters?: AnimalFilters) {
   const updateAnimal = async (id: string, animalData: Partial<AnimalFormData>, usuarioId: string) => {
     try {
       const updatedAnimal = await animalsService.updateAnimal(id, animalData, usuarioId);
-      setAnimals(prev => prev.map(animal => animal.id === id ? updatedAnimal : animal));
-      return updatedAnimal;
+      let mergedAnimal: Animal | null = null;
+
+      setAnimals(prev =>
+        prev.map(animal => {
+          if (animal.id !== id) {
+            return animal;
+          }
+          mergedAnimal = { ...animal, ...updatedAnimal };
+          return mergedAnimal;
+        })
+      );
+
+      if (!mergedAnimal) {
+        mergedAnimal = updatedAnimal;
+      }
+
+      emitAnimalUpdated(mergedAnimal);
+      return mergedAnimal;
     } catch (err) {
       throw new Error(err instanceof Error ? err.message : 'Error al actualizar animal');
     }
@@ -72,26 +135,60 @@ export function useAnimal(id: string | null) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!id) return;
+  const loadAnimal = useCallback(async () => {
+    if (!id) {
+      setAnimal(null);
+      return;
+    }
 
-    const loadAnimal = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await animalsService.getAnimalById(id);
-        setAnimal(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al cargar animal');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadAnimal();
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await animalsService.getAnimalById(id);
+      setAnimal(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al cargar animal');
+    } finally {
+      setIsLoading(false);
+    }
   }, [id]);
 
-  return { animal, isLoading, error };
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleAnimalUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<{ animalId: string; animal: Partial<Animal> }>;
+      const detail = customEvent.detail;
+      if (!detail?.animalId || detail.animalId !== id || !detail.animal) {
+        return;
+      }
+
+      setAnimal(prev => {
+        const base = prev ? { ...prev } as Record<string, unknown> : {} as Record<string, unknown>;
+
+        Object.entries(detail.animal).forEach(([key, value]) => {
+          if (value === undefined) {
+            delete base[key];
+          } else {
+            base[key] = value;
+          }
+        });
+
+        return base as Animal;
+      });
+    };
+
+    window.addEventListener('animal-data-updated', handleAnimalUpdated);
+    return () => window.removeEventListener('animal-data-updated', handleAnimalUpdated);
+  }, [id]);
+
+  useEffect(() => {
+    loadAnimal();
+  }, [loadAnimal]);
+
+  return { animal, isLoading, error, reload: loadAnimal };
 }
 
 // Hook para gestionar razas

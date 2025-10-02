@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { uploadAnimalPhoto, updateAnimalPhoto, deleteAnimalPhoto } from './imageUpload';
-import type { Animal, AnimalFormData, AnimalFilters, MovimientoAnimal, Raza } from '../types';
+import type { Animal, AnimalFormData, AnimalFilters, MovimientoAnimal, Raza, AnimalFoto } from '../types';
 
 // ========== ANIMALES ==========
 
@@ -46,6 +46,31 @@ export const animalsService = {
     const { data, error } = await query;
 
     if (error) throw error;
+    
+    // Cargar fotos principales para todos los animales del resultado
+    if (data && data.length > 0) {
+      const animalIds = data.map(a => a.id);
+      const { data: fotosPrincipales } = await supabase
+        .from('animal_fotos')
+        .select('animal_id, id, foto_url, descripcion, es_principal, orden, fecha_subida, usuario_subida')
+        .in('animal_id', animalIds)
+        .eq('es_principal', true);
+      
+      // Mapear fotos a sus animales
+      if (fotosPrincipales) {
+        const fotosMap = new Map(fotosPrincipales.map(f => [f.animal_id, f]));
+        data.forEach(animal => {
+          const fotoPrincipal = fotosMap.get(animal.id);
+          if (fotoPrincipal?.foto_url) {
+            animal.foto_url = fotoPrincipal.foto_url;
+            (animal as Animal).foto_principal = fotoPrincipal as AnimalFoto;
+          } else {
+            (animal as Animal).foto_principal = undefined;
+          }
+        });
+      }
+    }
+    
     return data as Animal[];
   },
 
@@ -62,6 +87,25 @@ export const animalsService = {
       .single();
 
     if (error) throw error;
+    
+    // Cargar foto principal desde animal_fotos
+    if (data) {
+      const { data: fotoPrincipal } = await supabase
+        .from('animal_fotos')
+        .select('id, animal_id, foto_url, descripcion, es_principal, orden, fecha_subida, usuario_subida')
+        .eq('animal_id', id)
+        .eq('es_principal', true)
+        .single();
+      
+      // Si existe foto principal en animal_fotos, usarla
+      // Si no, mantener la foto_url del animal (legacy)
+      if (fotoPrincipal?.foto_url) {
+        data.foto_url = fotoPrincipal.foto_url;
+        (data as Animal).foto_principal = fotoPrincipal as AnimalFoto;
+      } else {
+        (data as Animal).foto_principal = undefined;
+      }
+    }
     
     // Si tiene padre_id o madre_id, cargarlos por separado
     if (data && (data.padre_id || data.madre_id)) {
@@ -221,11 +265,32 @@ export const animalsService = {
       fecha_actualizacion: string;
       activo?: boolean;
       foto_url?: string | null;
+      sitio_actual_id?: string | null;
     } = {
       ...animalData,
       usuario_actualizacion: usuarioId,
       fecha_actualizacion: new Date().toISOString()
     };
+
+    // Normalizar campos opcionales para evitar errores de Supabase
+    if ('padre_id' in updateData && updateData.padre_id === '') {
+      updateData.padre_id = null;
+    }
+    if ('madre_id' in updateData && updateData.madre_id === '') {
+      updateData.madre_id = null;
+    }
+
+    if ('sitio_inicial_id' in updateData) {
+      updateData.sitio_actual_id = updateData.sitio_inicial_id || null;
+      delete updateData.sitio_inicial_id;
+    }
+
+    // Eliminar campos sin valor definido para evitar enviar undefined
+    Object.entries(updateData).forEach(([key, value]) => {
+      if (value === undefined) {
+        delete (updateData as Record<string, unknown>)[key];
+      }
+    });
 
     // No incluir el campo foto en la actualización de BD
     delete updateData.foto;
@@ -247,6 +312,23 @@ export const animalsService = {
       .single();
 
     if (error) throw error;
+
+    // Sincronizar campos derivados como foto principal
+    if (data) {
+      const { data: fotoPrincipal } = await supabase
+        .from('animal_fotos')
+        .select('id, animal_id, foto_url, descripcion, es_principal, orden, fecha_subida, usuario_subida')
+        .eq('animal_id', id)
+        .eq('es_principal', true)
+        .single();
+
+      if (fotoPrincipal?.foto_url) {
+        data.foto_url = fotoPrincipal.foto_url;
+        (data as Animal).foto_principal = fotoPrincipal as AnimalFoto;
+      } else {
+        (data as Animal).foto_principal = undefined;
+      }
+    }
 
     // Si se cambió la foto, sincronizar con animal_fotos
     if (animalData.foto !== undefined && data) {

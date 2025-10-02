@@ -3,16 +3,17 @@ import { albumService } from '../../services/album';
 import { PhotoUpload } from '../common/PhotoUpload';
 import { useAuth } from '../../hooks/useAuth';
 import Icon from '../common/Icon';
-import type { AnimalFoto, AlbumFotos } from '../../types/animals';
+import type { Animal, AnimalFoto, AlbumFotos } from '../../types/animals';
 
 interface PhotoGalleryModalProps {
   animalId: string;
   animalArete: string;
   animalNombre?: string;
   onClose: () => void;
+  onAlbumUpdated?: (album: AlbumFotos) => void | Promise<void>;
 }
 
-export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose }: PhotoGalleryModalProps) {
+export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose, onAlbumUpdated }: PhotoGalleryModalProps) {
   const { usuario } = useAuth();
   const [album, setAlbum] = useState<AlbumFotos>({
     fotos: [],
@@ -32,8 +33,10 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
       setLoading(true);
       const albumData = await albumService.getAnimalPhotos(animalId);
       setAlbum(albumData);
+      return albumData;
     } catch (error) {
       console.error('Error cargando álbum:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -43,7 +46,41 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
     loadAlbum();
   }, [loadAlbum]);
 
+  const dispatchAlbumUpdates = useCallback((albumData: AlbumFotos | null) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
 
+    window.dispatchEvent(new CustomEvent('animal-album-updated', {
+      detail: { animalId }
+    }));
+
+    if (albumData) {
+      const principal = albumData.foto_principal || null;
+      const updates: Partial<Animal> = {};
+
+      if (principal) {
+        updates.foto_url = principal.foto_url;
+        updates.foto_principal = principal;
+      } else if (albumData.total === 0) {
+        updates.foto_url = null;
+        updates.foto_principal = undefined;
+      }
+
+      if (Object.keys(updates).length > 0) {
+        window.dispatchEvent(new CustomEvent('animal-data-updated', {
+          detail: { animalId, animal: updates }
+        }));
+      }
+    }
+  }, [animalId]);
+
+  const notifyAlbumUpdated = useCallback(async (albumData: AlbumFotos | null) => {
+    if (albumData && onAlbumUpdated) {
+      await onAlbumUpdated(albumData);
+    }
+    dispatchAlbumUpdates(albumData);
+  }, [dispatchAlbumUpdates, onAlbumUpdated]);
 
   const handleAddPhoto = async (file: File | null) => {
     if (!file) return;
@@ -68,8 +105,9 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
       setTimeout(() => setUploadSuccess(false), 3000);
       
       // Recargar álbum y ocultar área de subida
-      await loadAlbum();
+      const updatedAlbum = await loadAlbum();
       setShowUploadArea(false);
+      await notifyAlbumUpdated(updatedAlbum || null);
     } catch (error) {
       console.error('Error agregando foto:', error);
       alert('Error al agregar la foto. Intenta nuevamente.');
@@ -81,8 +119,9 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
   const handleSetPrincipal = async (fotoId: string) => {
     try {
       await albumService.setAsPrincipal(fotoId);
-      await loadAlbum();
+      const updatedAlbum = await loadAlbum();
       setSelectedPhoto(null);
+      await notifyAlbumUpdated(updatedAlbum || null);
     } catch (error) {
       console.error('Error marcando como principal:', error);
       alert('Error al marcar como principal. Intenta nuevamente.');
@@ -96,8 +135,9 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
 
     try {
       await albumService.deletePhoto(fotoId);
-      await loadAlbum();
+      const updatedAlbum = await loadAlbum();
       setSelectedPhoto(null);
+      await notifyAlbumUpdated(updatedAlbum || null);
     } catch (error) {
       console.error('Error eliminando foto:', error);
       alert('Error al eliminar la foto. Intenta nuevamente.');

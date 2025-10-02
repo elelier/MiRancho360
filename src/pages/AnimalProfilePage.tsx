@@ -19,7 +19,7 @@ export function AnimalProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const { animal, isLoading, error } = useAnimal(id || null);
+  const { animal, isLoading, error, reload: reloadAnimal } = useAnimal(id || null);
   const { observaciones, reload: reloadObservaciones } = useAnimalObservaciones(id || null);
   const { recordatorios, markAsCompleted, deleteReminder } = useReminders();
   const { crias, stats, isLoading: criasLoading } = useCrias(id || null);
@@ -178,6 +178,7 @@ export function AnimalProfilePage() {
               src={animal.foto_url}
               alt={animal.nombre || animal.arete}
               className="w-full h-full object-cover"
+              style={{ objectPosition: '50% 25%' }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
