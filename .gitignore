@@ -7,15 +7,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node
+node_modules/
+dist/
+dist-ssr/
 *.local
 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
@@ -23,5 +24,41 @@ dist-ssr
 *.sln
 *.sw?
 
+# Environment
 .env
+.env.local
+.env.*.local
+
+# Local database dumps (do not commit large SQL dumps)
 /database
+
+# BMAD (local only)
+.bmad-core/
+.bmad-*/
+
+# Local AI / dev tool outputs
+.gemini/
+.github/chatmodes/
+
+# Caches and temp
+.cache/
+.cache-loader/
+.parcel-cache/
+.turbo/
+.next/
+/.vite
+tmp/
+.tmp/
+
+# Tests / coverage
+coverage/
+.nyc_output/
+
+# Deployment / hosts
+.netlify/
+.vercel/
+
+# Misc
+*.pem
+*.key
+Thumbs.db
