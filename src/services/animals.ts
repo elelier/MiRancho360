@@ -239,7 +239,7 @@ export const animalsService = {
       .single();
 
     // Manejar actualización de foto
-    let fotoUrl = currentAnimal?.foto_url;
+    let fotoUrl: string | null | undefined = currentAnimal?.foto_url;
     if (animalData.foto !== undefined) {
       if (animalData.foto instanceof File) {
         // Subir nueva foto
@@ -260,11 +260,13 @@ export const animalsService = {
     }
 
     // Si se está cambiando el estado, actualizar también el campo activo
-    const updateData: Partial<AnimalFormData> & {
+    const updateData: Partial<Omit<AnimalFormData, 'padre_id' | 'madre_id'>> & {
       usuario_actualizacion: string;
       fecha_actualizacion: string;
       activo?: boolean;
       foto_url?: string | null;
+      padre_id?: string | null;
+      madre_id?: string | null;
       sitio_actual_id?: string | null;
     } = {
       ...animalData,
@@ -297,7 +299,7 @@ export const animalsService = {
     
     // Agregar la URL de la foto si cambió
     if (animalData.foto !== undefined) {
-      updateData.foto_url = fotoUrl;
+      updateData.foto_url = fotoUrl ?? undefined;
     }
 
     if (animalData.estado) {

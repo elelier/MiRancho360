@@ -2,6 +2,23 @@ import { useState, useEffect, useCallback } from 'react';
 import { animalsService, razasService, movimientosService } from '../services/animals';
 import type { Animal, AnimalFormData, AnimalFilters, Raza, MovimientoAnimal } from '../types';
 
+const mergeAnimalData = (current: Animal | null, updates: Partial<Animal>): Animal => {
+  const base = { ...(current ?? {}) } as Animal;
+  const mutableBase = base as Partial<Record<keyof Animal, Animal[keyof Animal]>>;
+
+  Object.entries(updates).forEach(([key, value]) => {
+    const typedKey = key as keyof Animal;
+
+    if (value === undefined) {
+      delete mutableBase[typedKey];
+    } else {
+      mutableBase[typedKey] = value as Animal[keyof Animal];
+    }
+  });
+
+  return base;
+};
+
 // Hook para gestionar animales
 export function useAnimals(filters?: AnimalFilters) {
   const [animals, setAnimals] = useState<Animal[]>([]);
@@ -42,17 +59,7 @@ export function useAnimals(filters?: AnimalFilters) {
           return current;
         }
 
-        const next = { ...current } as Record<string, unknown>;
-
-        Object.entries(detail.animal).forEach(([key, value]) => {
-          if (value === undefined) {
-            delete next[key];
-          } else {
-            next[key] = value;
-          }
-        });
-
-        return next as Animal;
+        return mergeAnimalData(current, detail.animal);
       }));
     };
 
@@ -165,19 +172,7 @@ export function useAnimal(id: string | null) {
         return;
       }
 
-      setAnimal(prev => {
-        const base = prev ? { ...prev } as Record<string, unknown> : {} as Record<string, unknown>;
-
-        Object.entries(detail.animal).forEach(([key, value]) => {
-          if (value === undefined) {
-            delete base[key];
-          } else {
-            base[key] = value;
-          }
-        });
-
-        return base as Animal;
-      });
+      setAnimal(prev => mergeAnimalData(prev, detail.animal));
     };
 
     window.addEventListener('animal-data-updated', handleAnimalUpdated);

@@ -10,6 +10,7 @@ import Icon from '../components/common/Icon';
 import { Button } from '../components/common/Button';
 import { MoveAnimalModal } from '../components/animals/MoveAnimalModal';
 import { PhotoGalleryModal } from '../components/animals/PhotoGalleryModal';
+import { HealthHistory } from '../components/animals/HealthHistory';
 import { AddObservacionModal } from '../components/animals/AddObservacionModal';
 import type { ObservacionFormData } from '../types/observaciones';
 
@@ -19,7 +20,7 @@ export function AnimalProfilePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { usuario } = useAuth();
-  const { animal, isLoading, error, reload: reloadAnimal } = useAnimal(id || null);
+  const { animal, isLoading, error } = useAnimal(id || null);
   const { observaciones, reload: reloadObservaciones } = useAnimalObservaciones(id || null);
   const { recordatorios, markAsCompleted, deleteReminder } = useReminders();
   const { crias, stats, isLoading: criasLoading } = useCrias(id || null);
@@ -671,18 +672,11 @@ export function AnimalProfilePage() {
           {/* Pestaña Salud */}
           {activeTab === 'salud' && (
             <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold text-gray-900 flex items-center">
-                  <Icon name="heart" className="w-5 h-5 mr-2 text-red-500" />
-                  Historial de Salud
-                </h3>
-              </div>
-
-              <div className="text-center py-12">
-                <Icon name="shield-check" className="w-16 h-16 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Próximamente disponible</p>
-                <p className="text-sm text-gray-400 mt-2">Sistema de salud en desarrollo</p>
-              </div>
+              <HealthHistory
+                animalId={animal.id}
+                animalArete={animal.arete}
+                animalNombre={animal.nombre}
+              />
             </div>
           )}
 

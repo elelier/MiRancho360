@@ -63,7 +63,7 @@ export function PhotoGalleryModal({ animalId, animalArete, animalNombre, onClose
         updates.foto_url = principal.foto_url;
         updates.foto_principal = principal;
       } else if (albumData.total === 0) {
-        updates.foto_url = null;
+        updates.foto_url = undefined;
         updates.foto_principal = undefined;
       }
 
