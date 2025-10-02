@@ -59,7 +59,7 @@
 - [ ] **Reportes básicos**: Estadísticas esenciales
 
 ### **Integración Backend**  
-- [ ] **Supabase setup**: Database + autenticación real
+- [x] **Supabase setup**: Database + autenticación real
 - [ ] **API endpoints**: CRUD completo con validaciones
 - [ ] **Sincronización**: Offline-first con sync automático
 - [ ] **Deploy producción**: Netlify/Vercel con variables entorno

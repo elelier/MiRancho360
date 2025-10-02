@@ -279,7 +279,7 @@ animation: {
 **Causa**: Base de datos vacía  
 **Solución temporal**: 
 1. La app usa datos de ejemplo en algunos hooks
-2. O conectar Supabase con datos reales
+2. Confirma Supabase con datos reales (ya activa en ambientes actuales)
 3. Ver `ROADMAP.md` para instrucciones de setup DB
 
 ---

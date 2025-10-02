@@ -4,14 +4,14 @@ import { supabase } from '../../services/supabase';
 import { Button } from '../common/Button';
 import { Input } from '../common/Input';
 import Icon from '../common/Icon';
-import type { EventoSaludFormData, TipoEventoSalud, ProductoSalud } from '../../types/health';
+import type { EventoSalud, EventoSaludFormData, TipoEventoSalud, ProductoSalud } from '../../types/health';
 
 interface HealthEventModalProps {
   animalId: string;
   animalArete: string;
   animalNombre?: string;
   onClose: () => void;
-  onEventCreated?: () => void;
+  onEventCreated?: (event: EventoSalud) => void;
 }
 
 const TIPOS_EVENTO: { value: TipoEventoSalud; label: string; icon: string }[] = [
@@ -148,8 +148,8 @@ export function HealthEventModal({ animalId, animalArete, animalNombre, onClose,
         notas_recordatorio: formData.notas_recordatorio || undefined
       };
 
-      await createEvent(cleanedData);
-      onEventCreated?.();
+      const nuevoEvento = await createEvent(cleanedData);
+      onEventCreated?.(nuevoEvento);
       onClose();
     } catch (error) {
       console.error('Error creando evento de salud:', error);

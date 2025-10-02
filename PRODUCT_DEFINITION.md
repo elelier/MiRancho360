@@ -14,7 +14,7 @@
   - Estado del animal: Activo, Vendido, Muerto ✅
   - Validaciones completas del formulario ✅
 - 🟡 CRUD de sitios (estructura base)
-- 🟡 Conexión completa con Supabase
+- 🟢 Conexión con Supabase en producción (datos reales)
 
 ### **❗ Crítico Pendiente (10%)**
 - **Funcionalidad Offline** - Máxima prioridad
@@ -331,7 +331,7 @@ Una plataforma digital integral (móvil y web) que centraliza toda la informaci�
 ### **🟡 En Desarrollo (20%)**
 - CRUD de animales (formularios básicos)
 - CRUD de sitios (estructura base)
-- Conexión completa con Supabase
+- Conexión con Supabase en producción (datos reales)
 
 ### **❗ Crítico Pendiente (10%)**
 - **Funcionalidad Offline** - Máxima prioridad

@@ -13,12 +13,12 @@ interface HealthHistoryProps {
 
 const TIPO_EVENTO_LABELS: Record<TipoEventoSalud, string> = {
   vacuna: 'Vacuna',
-  desparasitacion: 'Desparasitación',
-  tratamiento_antibiotico: 'Tratamiento Antibiótico',
+  desparasitacion: 'Desparasitacion',
+  tratamiento_antibiotico: 'Tratamiento Antibiotico',
   tratamiento_hormonal: 'Tratamiento Hormonal',
-  cirugia: 'Cirugía',
-  revision_veterinaria: 'Revisión Veterinaria',
-  analisis_laboratorio: 'Análisis de Laboratorio',
+  cirugia: 'Cirugia',
+  revision_veterinaria: 'Revision Veterinaria',
+  analisis_laboratorio: 'Analisis de Laboratorio',
   otros: 'Otros'
 };
 
@@ -45,22 +45,38 @@ const TIPO_EVENTO_COLORS: Record<TipoEventoSalud, string> = {
 };
 
 export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHistoryProps) {
-  const { 
-    historial, 
-    estadisticas, 
-    loadingHistorial, 
+  const {
+    historial,
+    estadisticas,
+    loadingHistorial,
     loadingEstadisticas,
     getUpcomingReminders,
     getOverdueReminders,
     completeReminder,
-    cancelReminder
+    cancelReminder,
+    loadHistorial,
+    loadEstadisticas
   } = useHealth(animalId);
 
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventoSalud | null>(null);
   const [selectedTab, setSelectedTab] = useState<'eventos' | 'recordatorios'>('eventos');
+  const [expandedEvents, setExpandedEvents] = useState<Record<string, boolean>>({});
 
-  if (loadingHistorial || loadingEstadisticas) {
+  const handleEventCreated = (nuevoEvento: EventoSalud) => {
+    loadHistorial().catch(error => console.error('Error recargando historial de salud', error));
+    loadEstadisticas().catch(error => console.error('Error recargando estadisticas de salud', error));
+    setExpandedEvents(prev => ({ ...prev, [nuevoEvento.id]: true }));
+  };
+
+  const toggleEventDetails = (eventoId: string) => {
+    setExpandedEvents(prev => ({
+      ...prev,
+      [eventoId]: !prev[eventoId]
+    }));
+  };
+
+  if ((loadingHistorial || loadingEstadisticas) && (!historial || !estadisticas)) {
     return (
       <div className="space-y-6 animate-pulse">
         <div className="h-8 bg-gray-200 rounded"></div>
@@ -75,6 +91,10 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
 
   const proximosRecordatorios = getUpcomingReminders(30); // Próximos 30 días
   const recordatoriosVencidos = getOverdueReminders();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const confirmedEvents = (historial?.eventos ?? []).filter(evento => evento.fecha_aplicacion <= todayStr);
+  const confirmedEventsCost = confirmedEvents.reduce((sum, evento) => sum + (evento.costo ?? 0), 0);
+
 
   const handleCompleteReminder = async (recordatorio: RecordatorioSalud) => {
     if (confirm('¿Marcar este recordatorio como completado?')) {
@@ -106,17 +126,19 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
     });
   };
 
-  const formatCosto = (costo?: number) => {
-    if (!costo) return '';
-    return new Intl.NumberFormat('es-ES', {
+  const formatCosto = (costo?: number | null) => {
+    if (costo === undefined || costo === null) return '';
+    return new Intl.NumberFormat('es-MX', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
     }).format(costo);
   };
 
   return (
     <div className="space-y-6">
-      {/* Header con estadísticas */}
+      {/* Header con estadisticas */}
       <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -148,7 +170,7 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
                 <Icon name="chart" className="w-5 h-5 text-primary-600" />
                 <span className="text-sm text-gray-600">Total Eventos</span>
               </div>
-              <p className="text-2xl font-bold text-gray-800">{estadisticas.total_eventos}</p>
+              <p className="text-2xl font-bold text-gray-800">{confirmedEvents.length}</p>
             </div>
 
             <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -156,7 +178,7 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
                 <Icon name="currency-dollar" className="w-5 h-5 text-green-600" />
                 <span className="text-sm text-gray-600">Costo Total</span>
               </div>
-              <p className="text-2xl font-bold text-gray-800">{formatCosto(estadisticas.costo_total)}</p>
+              <p className="text-xl font-semibold tracking-tight text-gray-900">{formatCosto(confirmedEventsCost)}</p>
             </div>
 
             <div className="bg-white rounded-lg p-4 border border-gray-200">
@@ -271,7 +293,7 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
           >
             <div className="flex items-center space-x-2">
               <Icon name="notes" className="w-4 h-4" />
-              <span>Eventos de Salud ({historial?.eventos.length || 0})</span>
+              <span>Eventos de Salud ({confirmedEvents.length})</span>
             </div>
           </button>
           <button
@@ -292,7 +314,7 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
         <div className="p-6">
           {selectedTab === 'eventos' && (
             <div className="space-y-4">
-              {!historial?.eventos.length ? (
+              {!confirmedEvents.length ? (
                 <div className="text-center py-12">
                   <Icon name="notes" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-gray-600 mb-2">
@@ -309,69 +331,115 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
                   </Button>
                 </div>
               ) : (
-                historial.eventos.map(evento => (
-                  <div 
-                    key={evento.id}
-                    onClick={() => setSelectedEvent(evento)}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-primary-300 hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <Icon 
-                            name={TIPO_EVENTO_ICONS[evento.tipo_evento]} 
-                            className="w-6 h-6 text-primary-600" 
+                confirmedEvents.map((evento, index) => {
+                  const isExpanded = Boolean(expandedEvents[evento.id]);
+                  const isLast = index === (confirmedEvents.length || 0) - 1;
+
+                  return (
+                    <div key={evento.id} className="flex items-start gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-9 h-9 rounded-full bg-white border border-primary-200 flex items-center justify-center shadow-sm">
+                          <Icon
+                            name={TIPO_EVENTO_ICONS[evento.tipo_evento]}
+                            className="w-5 h-5 text-primary-600"
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h4 className="text-lg font-semibold text-gray-800">
-                              {evento.producto_utilizado}
-                            </h4>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium border ${TIPO_EVENTO_COLORS[evento.tipo_evento]}`}>
-                              {TIPO_EVENTO_LABELS[evento.tipo_evento]}
-                            </span>
-                          </div>
-                          
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-gray-600 mb-2">
-                            <div className="flex items-center space-x-1">
-                              <Icon name="calendar" className="w-4 h-4" />
-                              <span>{formatFecha(evento.fecha_aplicacion)}</span>
-                            </div>
-                            
-                            {evento.dosis && (
-                              <div className="flex items-center space-x-1">
-                                <Icon name="beaker" className="w-4 h-4" />
-                                <span>{evento.dosis} {evento.unidad_dosis}</span>
-                              </div>
-                            )}
-                            
-                            {evento.veterinario && (
-                              <div className="flex items-center space-x-1">
-                                <Icon name="heart" className="w-4 h-4" />
-                                <span>{evento.veterinario}</span>
-                              </div>
-                            )}
-                            
-                            {evento.costo && (
-                              <div className="flex items-center space-x-1">
-                                <Icon name="currency-dollar" className="w-4 h-4" />
-                                <span>{formatCosto(evento.costo)}</span>
-                              </div>
-                            )}
-                          </div>
-                          
-                          {evento.notas && (
-                            <p className="text-gray-600 text-sm line-clamp-2">
-                              {evento.notas}
-                            </p>
-                          )}
-                        </div>
+                        {!isLast && <span className="w-px flex-1 bg-gray-200 mt-2"></span>}
                       </div>
-                      <Icon name="chevron-right" className="w-5 h-5 text-gray-400" />
+
+                      <div className="flex-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleEventDetails(evento.id)}
+                          className="w-full text-left"
+                        >
+                          <div className="bg-white border border-gray-200 rounded-lg shadow-sm px-4 py-3 hover:border-primary-300 transition-colors">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                              <div>
+                                <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                  {formatFecha(evento.fecha_aplicacion)}
+                                </p>
+                                <h4 className="text-base sm:text-lg font-semibold text-gray-800 mt-1">
+                                  {evento.producto_utilizado}
+                                </h4>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide whitespace-nowrap border ${TIPO_EVENTO_COLORS[evento.tipo_evento]}`}>
+                                  {TIPO_EVENTO_LABELS[evento.tipo_evento]}
+                                </span>
+                                {evento.costo !== undefined && evento.costo !== null && (
+                                  <span className="text-xs font-semibold text-emerald-700 tracking-tight whitespace-nowrap">
+                                    {formatCosto(evento.costo)}
+                                  </span>
+                                )}
+                                <Icon
+                                  name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                                  className="w-4 h-4 text-gray-400"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="mt-3 ml-2 sm:ml-4 border-l-2 border-primary-100 pl-4 space-y-3 text-sm text-gray-700">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {evento.dosis && (
+                                <div>
+                                  <strong>Dosis:</strong> {evento.dosis} {evento.unidad_dosis}
+                                </div>
+                              )}
+                              {evento.veterinario && (
+                                <div>
+                                  <strong>Veterinario:</strong> {evento.veterinario}
+                                </div>
+                              )}
+                              {evento.proveedor && (
+                                <div>
+                                  <strong>Proveedor:</strong> {evento.proveedor}
+                                </div>
+                              )}
+                              {evento.lote_producto && (
+                                <div>
+                                  <strong>Lote:</strong> {evento.lote_producto}
+                                </div>
+                              )}
+                            </div>
+
+                            {evento.notas && (
+                              <p className="text-gray-600 leading-relaxed">{evento.notas}</p>
+                            )}
+
+                            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+                              {evento.fecha_vencimiento_producto && (
+                                <div className="flex items-center gap-1">
+                                  <Icon name="calendar" className="w-4 h-4" />
+                                  <span>Vence: {formatFecha(evento.fecha_vencimiento_producto)}</span>
+                                </div>
+                              )}
+                              {evento.created_by && (
+                                <div>
+                                  <strong>Registrado por:</strong> {evento.created_by}
+                                </div>
+                              )}
+                              <div>
+                                <strong>Creado:</strong> {formatFecha(evento.created_at)}
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => setSelectedEvent(evento)}
+                              className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+                            >
+                              Ver ficha completa
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           )}
@@ -488,9 +556,7 @@ export function HealthHistory({ animalId, animalArete, animalNombre }: HealthHis
           animalArete={animalArete}
           animalNombre={animalNombre}
           onClose={() => setShowEventModal(false)}
-          onEventCreated={() => {
-            // Recargar historial después de crear evento
-          }}
+          onEventCreated={handleEventCreated}
         />
       )}
 

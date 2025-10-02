@@ -284,14 +284,20 @@ export function useHealth(animalId?: string) {
 
   // Obtener próximos recordatorios (los más cercanos)
   const getUpcomingReminders = useCallback((dias: number = 7) => {
+    const hoy = new Date().toISOString().split('T')[0];
     const fechaLimite = new Date();
     fechaLimite.setDate(fechaLimite.getDate() + dias);
     const fechaLimiteStr = fechaLimite.toISOString().split('T')[0];
     
-    return recordatorios.filter(recordatorio => 
-      recordatorio.estado === 'pendiente' && 
-      recordatorio.fecha_programada <= fechaLimiteStr
-    ).sort((a, b) => a.fecha_programada.localeCompare(b.fecha_programada));
+    return recordatorios
+      .filter(recordatorio => {
+        if (recordatorio.estado !== 'pendiente') {
+          return false;
+        }
+
+        return recordatorio.fecha_programada >= hoy && recordatorio.fecha_programada <= fechaLimiteStr;
+      })
+      .sort((a, b) => a.fecha_programada.localeCompare(b.fecha_programada));
   }, [recordatorios]);
 
   // Obtener recordatorios vencidos
