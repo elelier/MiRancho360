@@ -10,6 +10,7 @@ import { RemindersPage } from './pages/RemindersPage';
 import { ReproductivePage } from './pages/ReproductivePage';
 import { LargeButtonShowcasePage } from './pages/LargeButtonShowcasePage';
 import { CardShowcasePage } from './pages/CardShowcasePage';
+import { InputShowcasePage } from './pages/InputShowcasePage';
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { usuario, isLoading } = useAuth();
@@ -143,6 +144,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CardShowcasePage />
+                </ProtectedRoute>
+              } 
+            />
+            {/* Demo de Inputs */}
+            <Route 
+              path="/demo/input" 
+              element={
+                <ProtectedRoute>
+                  <InputShowcasePage />
                 </ProtectedRoute>
               } 
             />

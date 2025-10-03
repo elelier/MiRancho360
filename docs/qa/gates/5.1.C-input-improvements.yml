@@ -1,0 +1,93 @@
+schema: 1
+story: '5.1.C'
+story_title: 'Input Improvements'
+slug: 'input-improvements'
+updated: '2025-10-03T13:25:00Z'
+reviewer: 'Quinn (Test Architect)'
+quality_score: 90
+expires: '2025-10-17T00:00:00Z'
+gate: CONCERNS
+status_reason: 'Accessibility validations and critical P0 test coverage still pending; ship after evidence is captured.'
+waiver:
+  active: false
+
+top_issues:
+  - severity: high
+    summary: 'Accessibility audits (focus, contrast, screen reader) not executed; CA-3/CA-4/CA-5 remain unchecked.'
+    suggested_owner: 'qa'
+    refs: ['docs/stories/story-5.1.C-input-improvements.md#CA-4', 'docs/qa/assessments/5.1.C-trace-20251003.md']
+  - severity: medium
+    summary: 'No automated guard ensures error state overrides success messaging when both props present.'
+    suggested_owner: 'dev'
+    refs: ['src/components/common/Input.tsx:52', 'docs/qa/assessments/5.1.C-test-design-20251003.md']
+
+risk_profile:
+  file: 'docs/qa/assessments/5.1.C-risk-20251003.md'
+  risks_tracked: 3
+  high_risk_ids: ['BUS-001']
+
+test_design:
+  file: 'docs/qa/assessments/5.1.C-test-design-20251003.md'
+  scenarios_total: 9
+  by_level:
+    unit: 5
+    integration: 1
+    e2e: 3
+  by_priority:
+    p0: 3
+    p1: 5
+    p2: 1
+  coverage_gaps:
+    - '5.1.C-UNIT-002'
+    - '5.1.C-E2E-002'
+    - '5.1.C-E2E-003'
+
+trace:
+  totals:
+    requirements: 6
+    full: 1
+    partial: 3
+    none: 2
+  planning_ref: 'docs/qa/assessments/5.1.C-test-design-20251003.md'
+  uncovered:
+    - ac: 'AC-3'
+      reason: 'Focus ring behaviour lacks automated validation.'
+    - ac: 'AC-4'
+      reason: 'Contrast audits not executed; Lighthouse evidence missing.'
+    - ac: 'AC-5'
+      reason: 'Screen-reader + keyboard walkthrough pending.'
+    - ac: 'AC-6'
+      reason: 'Accessibility test commands (axe, Lighthouse) outstanding.'
+  notes: 'See docs/qa/assessments/5.1.C-trace-20251003.md for Given-When-Then mappings.'
+
+evidence:
+  tests_reviewed: 9
+  risks_identified: 3
+  trace:
+    ac_covered: [1]
+    ac_gaps: [2, 3, 4, 5, 6]
+
+nfr_validation:
+  _assessed: [security, performance, reliability, maintainability]
+  security:
+    status: PASS
+    notes: 'Client-only style changes; no new data paths.'
+  performance:
+    status: PASS
+    notes: 'Tailwind utility updates only; negligible runtime impact.'
+  reliability:
+    status: CONCERNS
+    notes: 'Error/success precedence untested; accessibility evidence pending.'
+  maintainability:
+    status: PASS
+    notes: 'Docs + unit tests updated; optional success prop preserves API.'
+
+recommendations:
+  immediate:
+    - action: 'Add unit test 5.1.C-UNIT-002 enforcing error-over-success precedence.'
+      refs: ['src/components/common/Input.tsx:52', 'src/components/common/__tests__/Input.test.tsx']
+    - action: 'Execute Lighthouse/axe and screen-reader walkthrough on `/demo/input`; attach evidence to story.'
+      refs: ['src/pages/InputShowcasePage.tsx', 'docs/stories/story-5.1.C-input-improvements.md#CA-4']
+  future:
+    - action: 'Consider Playwright flow to exercise focus ring across shared inputs.'
+      refs: ['docs/qa/assessments/5.1.C-test-design-20251003.md']

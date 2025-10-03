@@ -488,3 +488,83 @@ npm run lighthouse
 **Creado por:** Bob (Scrum Master)  
 **Revisado por:** Pendiente  
 **Listo para desarrollo:** 
+## Dev Agent Record
+
+### Agent Model Used
+- Codex GPT-5 (James)
+
+### Tasks / Subtasks Progress
+- [x] Implemented success feedback and aria wiring for Input, Select y Textarea.
+- [x] Updated `.input-primary` styles to improve focus visibility and disabled presentation.
+- [x] Added required placeholder hints alongside helper handling updates.
+- [x] Documented the changes and created targeted unit tests for new states.
+- [x] Strengthened regression suite with error-over-success guard, disabled styling assertions, and automated axe audit.
+
+### Debug Log References
+- `npx vitest run src/components/common/__tests__/Input.test.tsx`
+- `npm run lint`
+
+### Completion Notes
+- Added jest-axe powered accessibility audit covering combined control states.
+- Extended disabled styling via inline utilities to make regression checks explicit.
+- Ran `npm run lint` and targeted Vitest suite; Lighthouse + manual screen reader walkthrough still pending before Done.
+
+### File List
+- src/components/common/Input.tsx
+- src/index.css
+- src/components/common/Input.md
+- src/components/common/__tests__/Input.test.tsx
+- package.json
+- package-lock.json
+
+### Change Log
+- 2025-10-03: Added success state support and accessibility improvements across core inputs; refreshed docs and tests.
+- 2025-10-03: Added error precedence guard tests, inline disabled utilities, jest-axe audit, and refreshed dependencies.
+
+### Status
+- [x] Ready for Review
+- [ ] Blocked
+## QA Results
+
+### Review Date: 2025-10-03
+
+### Reviewed By: Quinn (Test Architect)
+
+### Code Quality Assessment
+- New success/disabled logic centralises state handling and aria descriptors (`src/components/common/Input.tsx:52`), but there is no automated guard that verifies `error` always overrides `success`, leaving risk TECH-001 outstanding.
+- Disabled styling relies on Tailwind utilities (`src/index.css:37`); current unit suite only asserts `disabled` attribute, so regressions to gray palette would slip through.
+- `/demo/input` playground (`src/pages/InputShowcasePage.tsx:18`) is a solid manual sandbox, yet the first Select example does not demonstrate the placeholder hint because no default value is assigned—fine for dev tooling but highlight when demoing.
+
+### Refactoring Performed
+- None (analysis only).
+
+### Compliance Check
+- Coding Standards: PASS – Updates respect existing component patterns and typing.
+- Project Structure: PASS – Shared docs/tests routed under `src/components/common` and new demo page under `src/pages`.
+- Testing Strategy: CONCERNS – P0 scenarios from test design (error-success precedence, accessibility audits) remain unimplemented.
+- All ACs Met: CONCERNS – CA-3/CA-4/CA-5 rely on pending manual focus, contrast, and screen-reader validations.
+
+### Improvements Checklist
+- [ ] Add unit test ensuring `error` supersedes `success` when both provided (5.1.C-UNIT-002).
+- [ ] Extend disabled-state assertions for Input/Select/Textarea to cover Tailwind classes (`disabled:bg-gray-100`, etc.).
+- [ ] Execute Lighthouse/axe pass on `/demo/input` and capture results ≥90 accessibility score.
+- [ ] Perform keyboard + screen-reader walkthrough to close CA-3/CA-5 gaps; document evidence in story.
+
+### Security Review
+- No new data access paths introduced; client-only styling changes.
+
+### Performance Considerations
+- Tailwind utility adjustments only; no measurable runtime impact.
+
+### Test Evidence
+- `npx vitest run src/components/common/__tests__/Input.test.tsx`
+
+### Traceability
+- Trace matrix: docs/qa/assessments/5.1.C-trace-20251003.md
+
+### Gate Recommendation
+- Gate status: **CONCERNS** – Resolve missing P0 tests and complete accessibility validations before promoting.
+
+### Follow Ups / Owner Notes
+- Recommended status after fixes: Ready for Done.
+- Primary owner: Dev (UI platform team) to implement tests; QA to schedule accessibility runs.
