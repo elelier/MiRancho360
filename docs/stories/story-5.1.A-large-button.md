@@ -236,7 +236,7 @@ Botón accesible optimizado para usuarios adultos mayores (60+).
 
 ### CA-6: Tests
 - [x] Todos los tests unitarios pasan
-- [ ] Cobertura de código  80% en el componente
+- [x] Cobertura de código  80% en el componente
 
 ### CA-7: Documentación
 - [x] README del componente completo
@@ -306,7 +306,7 @@ Botón accesible optimizado para usuarios adultos mayores (60+).
 - [x] Probado en dispositivo móvil real
 - [x] Sin warnings de TypeScript
 - [x] Sin warnings de ESLint
-- [ ] Commiteado con mensaje descriptivo
+- [x] Commiteado con mensaje descriptivo
 
 ## Archivos Afectados
 

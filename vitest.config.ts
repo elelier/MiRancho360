@@ -10,7 +10,10 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
-      include: ['src/components/common/LargeButton.tsx'],
+      include: [
+        'src/components/common/LargeButton.tsx',
+        'src/components/common/Card.tsx',
+      ],
       thresholds: {
         statements: 80,
         branches: 70,

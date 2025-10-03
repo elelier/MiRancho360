@@ -9,7 +9,7 @@ import { SitesPage } from './pages/SitesPage';
 import { RemindersPage } from './pages/RemindersPage';
 import { ReproductivePage } from './pages/ReproductivePage';
 import { LargeButtonShowcasePage } from './pages/LargeButtonShowcasePage';
-
+import { CardShowcasePage } from './pages/CardShowcasePage';
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { usuario, isLoading } = useAuth();
@@ -137,6 +137,15 @@ function App() {
               } 
             />
 
+            {/* Demo de Card */}
+            <Route 
+              path="/demo/card" 
+              element={
+                <ProtectedRoute>
+                  <CardShowcasePage />
+                </ProtectedRoute>
+              } 
+            />
             {/* Rutas de reproducción */}
             <Route 
               path="/reproduccion" 
@@ -170,3 +179,7 @@ function App() {
 }
 
 export default App;
+
+
+
+

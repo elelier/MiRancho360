@@ -1,0 +1,71 @@
+schema: 1
+story: '5.1.B'
+story_title: 'Crear Componente Card Accesible'
+gate: PASS
+status_reason: 'Accessibility fixes validated; variant regression guard and demo route in place. Remaining work is planned manual verification.'
+reviewer: 'Quinn (Test Architect)'
+updated: '2025-10-03T11:20:00-06:00'
+top_issues: []
+waiver:
+  active: false
+quality_score: 100
+expires: '2025-10-17T00:00:00Z'
+evidence:
+  tests_reviewed: 10
+  risks_identified: 3
+  trace:
+    ac_covered: [1, 2, 3, 5]
+    ac_gaps: [4, 6]
+risk_profile: docs/qa/assessments/5.1.B-risk-20251003.md
+test_design:
+  scenarios_total: 7
+  by_level:
+    unit: 4
+    integration: 2
+    e2e: 3
+  by_priority:
+    p0: 2
+    p1: 3
+    p2: 2
+  coverage_gaps:
+    - ac: 'CA-4'
+      reason: 'Responsive validation pending manual run.'
+    - ac: 'CA-6'
+      reason: 'Editorial checklist pending.'
+trace:
+  totals:
+    requirements: 6
+    full: 4
+    partial: 0
+    none: 2
+  planning_ref: 'docs/qa/assessments/5.1.B-test-design-20251003.md'
+  uncovered:
+    - ac: 'CA-4'
+      reason: 'Responsive behaviors validated solo de forma manual.'
+    - ac: 'CA-6'
+      reason: 'Documentacion revisada manualmente; sin tests automatizados.'
+  notes: 'See docs/qa/assessments/5.1.B-trace-20251003.md'
+nfr_validation:
+  _assessed: [security, performance, reliability, maintainability]
+  security:
+    status: PASS
+    notes: 'Presentational-only change; no new attack surface.'
+  performance:
+    status: PASS
+    notes: 'Static render cost; Tailwind tokens reused.'
+  reliability:
+    status: PASS
+    notes: 'Keyboard semantics aligned with native buttons; unit regression present.'
+  maintainability:
+    status: PASS
+    notes: 'Tests and docs updated; showcase route aids QA.'
+recommendations:
+  immediate: []
+  future:
+    - action: 'Ejecutar verificacion responsive/visual (Storybook, Percy o pruebas manuales) para CA-4.'
+      refs:
+        - docs/stories/story-5.1.B-card-component.md
+    - action: 'Incluir Card.md y /demo/card en checklist editorial de lanzamiento.'
+      refs:
+        - src/components/common/Card.md
+        - src/pages/CardShowcasePage.tsx
