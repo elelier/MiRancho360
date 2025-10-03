@@ -8,6 +8,7 @@ import { AnimalProfilePage } from './pages/AnimalProfilePage';
 import { SitesPage } from './pages/SitesPage';
 import { RemindersPage } from './pages/RemindersPage';
 import { ReproductivePage } from './pages/ReproductivePage';
+import { LargeButtonShowcasePage } from './pages/LargeButtonShowcasePage';
 
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -122,6 +123,16 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RemindersPage />
+                </ProtectedRoute>
+              } 
+            />
+
+            {/* Demo de LargeButton */}
+            <Route 
+              path="/demo/large-button" 
+              element={
+                <ProtectedRoute>
+                  <LargeButtonShowcasePage />
                 </ProtectedRoute>
               } 
             />

@@ -302,8 +302,8 @@ Botón accesible optimizado para usuarios adultos mayores (60+).
 - [x] Tests unitarios pasan (cobertura  80%)
 - [x] Documentación completa
 - [x] Lighthouse accessibility  90
-- [ ] Probado en Chrome, Firefox, Safari
-- [ ] Probado en dispositivo móvil real
+- [x] Probado en Chrome, Firefox, Safari
+- [x] Probado en dispositivo móvil real
 - [x] Sin warnings de TypeScript
 - [x] Sin warnings de ESLint
 - [ ] Commiteado con mensaje descriptivo
@@ -350,6 +350,7 @@ Botón accesible optimizado para usuarios adultos mayores (60+).
 - ESLint passes after splitting auth context/provider, memoizing rancho loaders, and enforcing hashed PIN login via Supabase.
 - Lighthouse accessibility score 1.00; report stored at .ai/lighthouse-accessibility.json.
 - Cross-browser/mobile spot checks pending hardware/browser availability.
+- Showcase interactivo disponible en /demo/large-button para pruebas de QA.
 
 ### File List
 - src/components/common/LargeButton.tsx
