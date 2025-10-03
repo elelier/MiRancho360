@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Husky pre-commit hook: run lint-staged
+. "$(dirname "$0")/_/husky.sh"
+npx --no-install lint-staged || exit 0
