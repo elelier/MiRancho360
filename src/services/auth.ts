@@ -1,110 +1,55 @@
 import { supabase } from './supabase';
 import type { Usuario, UsuarioFormData, SesionAuth } from '../types';
 
-// ========== AUTENTICACIÓN TEMPORAL (SIN SUPABASE) ==========
+const pinSalt = import.meta.env.VITE_PIN_SALT;
 
-// Usuario real de producción de Supabase
-const TEMP_USER: Usuario = {
-  id: 'b0eb53d4-2754-4762-8642-4c63236dd211', // ID real de la BD
-  nombre: 'Administrador',
-  email: 'admin@rancho.com',
-  rol: 'administrador',
-  pin: '1234',
-  activo: true,
-  fecha_registro: '2025-09-24T01:04:48.804196Z',
-  ultimo_acceso: new Date().toISOString()
-};
+if (!pinSalt) {
+  console.warn('VITE_PIN_SALT no est� definido; la autenticaci�n por PIN fallar�.');
+}
 
 export const authService = {
-  // Login con PIN de 4 dígitos (TEMPORAL - sin Supabase)
   async login(pin: string): Promise<SesionAuth | null> {
-    try {
-      console.log('🔐 Intentando login con PIN:', pin);
-      
-      // Verificar PIN temporal
-      if (pin === '1234') {
-        console.log('✅ PIN correcto, creando sesión...');
-        
-        // NUEVO: Crear sesión real en Supabase
-        // Usar credenciales temporales para autenticación
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-          email: 'admin@rancho.com',
-          password: 'admin123' // Temporal para desarrollo
-        });
-
-        if (authError) {
-          console.log('⚠️ Error autenticando con Supabase, usando sesión local:', authError.message);
-          
-          // Si falla la auth de Supabase, usar sesión local
-          const session: SesionAuth = {
-            usuario: TEMP_USER,
-            token: generateSessionToken(),
-            expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-          };
-
-          localStorage.setItem('mirancho_session', JSON.stringify(session));
-          return session;
-        }
-
-        console.log('✅ Autenticado con Supabase:', authData.user?.id);
-        
-        // Crear sesión local con usuario autenticado
-        const session: SesionAuth = {
-          usuario: {
-            ...TEMP_USER,
-            id: authData.user?.id || TEMP_USER.id
-          },
-          token: generateSessionToken(),
-          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-        };
-
-        localStorage.setItem('mirancho_session', JSON.stringify(session));
-        console.log('💾 Sesión guardada con autenticación de Supabase');
-
-        return session;
-      } else {
-        console.log('❌ PIN incorrecto');
-        return null;
-      }
-    } catch (error) {
-      console.error('💥 Error en login:', error);
+    if (!pinSalt) {
       return null;
     }
-  },
 
-  // Login con PIN de 4 dígitos (PRODUCCIÓN - con Supabase)
-  async loginWithSupabase(pin: string): Promise<SesionAuth | null> {
     try {
-      // Hashear el PIN para comparar con la base de datos
       const hashedPin = await hashPin(pin);
-      
+
       const { data, error } = await supabase
         .from('usuarios')
-        .select('*')
+        .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
         .eq('pin', hashedPin)
         .eq('activo', true)
         .single();
 
       if (error || !data) {
-        throw new Error('PIN incorrecto');
+        console.warn('PIN incorrecto o usuario inactivo');
+        return null;
       }
 
-      // Actualizar último acceso
-      await supabase
+      const ultimoAcceso = new Date().toISOString();
+
+      const { error: updateError } = await supabase
         .from('usuarios')
-        .update({ ultimo_acceso: new Date().toISOString() })
+        .update({ ultimo_acceso: ultimoAcceso })
         .eq('id', data.id);
 
-      // Crear sesión local (sin usar Supabase Auth ya que usamos PIN)
+      if (updateError) {
+        console.error('Error actualizando �ltimo acceso:', updateError.message);
+      }
+
       const session: SesionAuth = {
-        usuario: data as Usuario,
+        usuario: {
+          ...(data as Usuario),
+          pin: hashedPin,
+          ultimo_acceso: ultimoAcceso,
+        },
         token: generateSessionToken(),
-        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+        expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       };
 
-      // Guardar en localStorage
       localStorage.setItem('mirancho_session', JSON.stringify(session));
-
       return session;
     } catch (error) {
       console.error('Error en login:', error);
@@ -112,115 +57,48 @@ export const authService = {
     }
   },
 
-  // Logout
+  async loginWithSupabase(pin: string): Promise<SesionAuth | null> {
+    return this.login(pin);
+  },
+
   async logout() {
     localStorage.removeItem('mirancho_session');
   },
 
-  // Forzar limpieza de sesión y nuevo login (para desarrollo)
   async forceCleanSession() {
-    console.log('🧹 Limpiando sesión y forzando nuevo login...');
+    console.log('Limpiando sesi�n y forzando nuevo login...');
     localStorage.removeItem('mirancho_session');
-    // Recargar la página para forzar nuevo login
     window.location.reload();
   },
 
-  // Obtener sesión actual
   getCurrentSession(): SesionAuth | null {
     try {
-      const sessionData = localStorage.getItem('mirancho_session');
-      if (!sessionData) return null;
+      const sessionRaw = localStorage.getItem('mirancho_session');
+      if (!sessionRaw) {
+        return null;
+      }
 
-      const session: SesionAuth = JSON.parse(sessionData);
-      
-      // Verificar si la sesión ha expirado
-      if (new Date(session.expires_at) < new Date()) {
+      const session = JSON.parse(sessionRaw) as SesionAuth;
+      if (new Date(session.expires_at).getTime() < Date.now()) {
         localStorage.removeItem('mirancho_session');
         return null;
       }
 
       return session;
     } catch (error) {
-      console.error('Error al obtener sesión:', error);
+      console.error('Error leyendo sesi�n local:', error);
       localStorage.removeItem('mirancho_session');
       return null;
     }
   },
 
-  // Verificar si el usuario está autenticado
-  isAuthenticated(): boolean {
-    return this.getCurrentSession() !== null;
-  },
-
-  // Obtener usuario actual
-  getCurrentUser(): Usuario | null {
-    const session = this.getCurrentSession();
-    return session?.usuario || null;
-  },
-
-  // Cambiar PIN
-  async changePin(usuarioId: string, pinActual: string, pinNuevo: string): Promise<boolean> {
-    try {
-      const hashedPinActual = await hashPin(pinActual);
-      const hashedPinNuevo = await hashPin(pinNuevo);
-
-      // Verificar PIN actual
-      const { data: usuario, error } = await supabase
-        .from('usuarios')
-        .select('pin')
-        .eq('id', usuarioId)
-        .single();
-
-      if (error || usuario.pin !== hashedPinActual) {
-        throw new Error('PIN actual incorrecto');
-      }
-
-      // Actualizar PIN
-      const { error: updateError } = await supabase
-        .from('usuarios')
-        .update({ pin: hashedPinNuevo })
-        .eq('id', usuarioId);
-
-      if (updateError) throw updateError;
-
-      return true;
-    } catch (error) {
-      console.error('Error al cambiar PIN:', error);
-      return false;
-    }
-  }
-};
-
-// ========== USUARIOS ==========
-
-export const usuariosService = {
-  // Obtener todos los usuarios
-  async getUsuarios() {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
-      .order('nombre');
-
-    if (error) throw error;
-    return data as Omit<Usuario, 'pin'>[];
-  },
-
-  // Obtener usuario por ID
-  async getUsuarioById(id: string) {
-    const { data, error } = await supabase
-      .from('usuarios')
-      .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
-      .eq('id', id)
-      .single();
-
-    if (error) throw error;
-    return data as Omit<Usuario, 'pin'>;
-  },
-
-  // Crear nuevo usuario
   async createUsuario(usuarioData: UsuarioFormData) {
     if (usuarioData.pin !== usuarioData.confirmar_pin) {
       throw new Error('Los PINs no coinciden');
+    }
+
+    if (!pinSalt) {
+      throw new Error('VITE_PIN_SALT no configurado');
     }
 
     const hashedPin = await hashPin(usuarioData.pin);
@@ -232,7 +110,7 @@ export const usuariosService = {
         email: usuarioData.email,
         rol: usuarioData.rol,
         pin: hashedPin,
-        activo: true
+        activo: true,
       })
       .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
       .single();
@@ -241,7 +119,6 @@ export const usuariosService = {
     return data;
   },
 
-  // Actualizar usuario
   async updateUsuario(id: string, usuarioData: Partial<Omit<UsuarioFormData, 'pin' | 'confirmar_pin'>>) {
     const { data, error } = await supabase
       .from('usuarios')
@@ -254,7 +131,6 @@ export const usuariosService = {
     return data as Omit<Usuario, 'pin'>;
   },
 
-  // Desactivar usuario
   async deactivateUsuario(id: string) {
     const { data, error } = await supabase
       .from('usuarios')
@@ -265,23 +141,73 @@ export const usuariosService = {
 
     if (error) throw error;
     return data as Omit<Usuario, 'pin'>;
-  }
+  },
+
+  async changePin(usuarioId: string, pinActual: string, pinNuevo: string): Promise<boolean> {
+    if (!pinSalt) {
+      throw new Error('VITE_PIN_SALT no configurado');
+    }
+
+    try {
+      const hashedPinActual = await hashPin(pinActual);
+      const hashedPinNuevo = await hashPin(pinNuevo);
+
+      const { data: usuario, error } = await supabase
+        .from('usuarios')
+        .select('pin')
+        .eq('id', usuarioId)
+        .single();
+
+      if (error || usuario?.pin !== hashedPinActual) {
+        throw new Error('PIN actual incorrecto');
+      }
+
+      const { error: updateError } = await supabase
+        .from('usuarios')
+        .update({ pin: hashedPinNuevo })
+        .eq('id', usuarioId);
+
+      if (updateError) throw updateError;
+
+      return true;
+    } catch (error) {
+      console.error('Error al cambiar PIN:', error);
+      return false;
+    }
+  },
 };
 
-// ========== UTILIDADES ==========
+export const usuariosService = {
+  async getUsuarios() {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
+      .order('nombre');
 
-// Función simple para hashear PIN (en producción usar bcrypt o similar)
+    if (error) throw error;
+    return data as Omit<Usuario, 'pin'>[];
+  },
+
+  async getUsuarioById(id: string) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('id, nombre, email, rol, activo, fecha_registro, ultimo_acceso')
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    return data as Omit<Usuario, 'pin'>;
+  },
+};
+
 async function hashPin(pin: string): Promise<string> {
-  // Por simplicidad, usamos una función básica
-  // En producción, implementar un hash más seguro
   const encoder = new TextEncoder();
-  const data = encoder.encode(pin + 'MIRANCHO_SALT_2024');
+  const data = encoder.encode(`${pinSalt ?? ''}${pin}`);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-// Generar token de sesión
 function generateSessionToken(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
 }

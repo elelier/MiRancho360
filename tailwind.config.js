@@ -7,69 +7,64 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Colores principales del rancho
         primary: {
           50: '#f5f8f3',
-          100: '#e8f0e3',
-          200: '#d1e1c9',
-          300: '#aecba1',
-          400: '#97B982', // Color principal - Dusty green
-          500: '#7fa56b',
-          600: '#628654',
-          700: '#4f6a44',
-          800: '#405538',
-          900: '#36472f',
+          100: '#e4efdc',
+          200: '#c9dfbd',
+          300: '#a7ca98',
+          400: '#85b074',
+          500: '#4f6a44',
+          600: '#3f5634',
+          700: '#2f4126',
+          800: '#24341d',
+          900: '#1a2715',
         },
-        // Color de acento - Earthy yellow
         accent: {
           50: '#faf8f1',
-          100: '#f4efdf',
-          200: '#e8dcbb',
-          300: '#dac693',
-          400: '#C5A34A', // Color de acento principal
-          500: '#b8953f',
-          600: '#a17f35',
-          700: '#86652d',
-          800: '#6f5229',
-          900: '#5c4325',
+          100: '#f1ead6',
+          200: '#e2d1a6',
+          300: '#d1b372',
+          400: '#b98f3a',
+          500: '#6f5229',
+          600: '#5c4325',
+          700: '#4b361f',
+          800: '#3b2a19',
+          900: '#2b1f13',
         },
-        // Fondo principal - Very light desaturated green
         background: {
           DEFAULT: '#F0F4EF',
           light: '#f7faf6',
           dark: '#e8ece7',
         },
-        // Mantener colores legacy para compatibilidad
         ranch: {
           50: '#f5f8f3',
-          100: '#e8f0e3',
-          200: '#d1e1c9',
-          300: '#aecba1',
-          400: '#97B982',
-          500: '#7fa56b',
-          600: '#628654',
-          700: '#4f6a44',
-          800: '#405538',
-          900: '#36472f',
+          100: '#e4efdc',
+          200: '#c9dfbd',
+          300: '#a7ca98',
+          400: '#85b074',
+          500: '#4f6a44',
+          600: '#3f5634',
+          700: '#2f4126',
+          800: '#24341d',
+          900: '#1a2715',
         },
         earth: {
           50: '#faf8f1',
-          100: '#f4efdf',
-          200: '#e8dcbb',
-          300: '#dac693',
-          400: '#C5A34A',
-          500: '#b8953f',
-          600: '#a17f35',
-          700: '#86652d',
-          800: '#6f5229',
-          900: '#5c4325',
+          100: '#f1ead6',
+          200: '#e2d1a6',
+          300: '#d1b372',
+          400: '#b98f3a',
+          500: '#6f5229',
+          600: '#5c4325',
+          700: '#4b361f',
+          800: '#3b2a19',
+          900: '#2b1f13',
         }
       },
       fontFamily: {
         sans: ['PT Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        // Tamaños más grandes para mejor legibilidad
         'xs': ['14px', { lineHeight: '20px' }],
         'sm': ['16px', { lineHeight: '24px' }],
         'base': ['18px', { lineHeight: '28px' }],
@@ -81,12 +76,10 @@ export default {
         '2xl-mobile': ['2rem', { lineHeight: '2.5rem' }],
       },
       spacing: {
-        // Espaciados más generosos para mejor accesibilidad
         '18': '4.5rem',
         '22': '5.5rem',
       },
       borderRadius: {
-        // Bordes más suaves
         'xl': '16px',
         '2xl': '20px',
       },
