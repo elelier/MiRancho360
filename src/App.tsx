@@ -11,6 +11,7 @@ import { ReproductivePage } from './pages/ReproductivePage';
 import { LargeButtonShowcasePage } from './pages/LargeButtonShowcasePage';
 import { CardShowcasePage } from './pages/CardShowcasePage';
 import { InputShowcasePage } from './pages/InputShowcasePage';
+import { SwipeActionShowcasePage } from './pages/SwipeActionShowcasePage';
 // Componente para rutas protegidas
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { usuario, isLoading } = useAuth();
@@ -148,13 +149,22 @@ function App() {
               } 
             />
             {/* Demo de Inputs */}
-            <Route 
-              path="/demo/input" 
+            <Route
+              path="/demo/input"
               element={
                 <ProtectedRoute>
                   <InputShowcasePage />
                 </ProtectedRoute>
-              } 
+              }
+            />
+            {/* Demo de SwipeAction */}
+            <Route
+              path="/demo/swipe-action"
+              element={
+                <ProtectedRoute>
+                  <SwipeActionShowcasePage />
+                </ProtectedRoute>
+              }
             />
             {/* Rutas de reproducción */}
             <Route 
